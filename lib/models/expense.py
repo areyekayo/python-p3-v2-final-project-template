@@ -61,6 +61,8 @@ class Expense:
             raise ValueError("Ower is not a user")
         else:
             self._ower = ower
+
+    
     
 
         
