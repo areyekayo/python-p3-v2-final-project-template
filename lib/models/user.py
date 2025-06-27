@@ -2,7 +2,7 @@ from __init__ import CONN, CURSOR
 
 class User:
 
-    all = []
+    all = {}
 
     def __init__(self, name, income):
         self.id = id
@@ -28,6 +28,58 @@ class User:
             income = int(income)
             self._income = income
         except: raise ValueError("Income must be an integer with no commas or decimals, ex: 50000")
+
+    @classmethod
+    def create_table(cls):
+        sql = """
+            CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY,
+            name TEXT,
+            income INT)
+        """
+        CURSOR.execute(sql)
+        CONN.commit()
+    
+    def save(self):
+        sql = """
+            INSERT INTO users (name, income)
+            VALUES (?, ?)
+        """
+        CURSOR.execute(sql, (self.name, self.income))
+        CONN.commit()
+
+        self.id = CURSOR.lastrowid
+        type(self).all[self.id] = self
+
+    @classmethod
+    def create(cls, name, income):
+        user = cls(name, income)
+        user.save()
+        return user
+    
+
+    @classmethod
+    def instance_from_db(cls, row):
+        user = cls.all.get(row[0])
+        if user:
+            user.name = row[1]
+            user.income = row[2]
+        else:
+            user = cls(row[1], row[2])
+            user.id = row[0]
+            cls.all[user.id] = user
+        return user
+
+    @classmethod
+    def find_by_name(cls, name):
+        sql = """
+            SELECT *
+            FROM users
+            WHERE name = ?
+        """
+        row = CURSOR.execute(sql, (name,)).fetchone()
+        return cls.instance_from_db(row) if row else None
+        
     
         
         
