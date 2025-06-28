@@ -86,6 +86,17 @@ class Expense:
         CURSOR.execute(sql)
         CONN.commit()
 
+    def save(self):
+        sql = """
+            INSERT INTO expenses (purchase_date, store, expense_amount, payer_id, ower_id)
+            VALUES (?, ?, ?, ?, ?)
+        """
+        CURSOR.execute(sql, (self.purchase_date, self.store, self.expense_amount, self.payer_id, self.ower_id))
+        CONN.commit()
+
+        self.id = CURSOR.lastrowid
+        type(self).all[self.id] = self
+
     
 
 
