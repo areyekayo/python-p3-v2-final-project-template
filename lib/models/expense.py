@@ -107,6 +107,17 @@ class Expense:
                              self.expense_amount, self.payer_id, self.ower_id, self.id))
         CONN.commit()
 
+    def delete(self):
+        sql = """
+            DELETE from expenses
+            WHERE id = ?
+        """
+        CURSOR.execute(sql, (self.id,))
+        CONN.commit()
+
+        del type(self).all[self.id]
+        self.id = None
+
     
 
 
