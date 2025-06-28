@@ -97,6 +97,16 @@ class Expense:
         self.id = CURSOR.lastrowid
         type(self).all[self.id] = self
 
+    def update(self):
+        sql = """
+            UPDATE expenses
+            SET purchase_date = ?, store = ?, expense_amount = ?, payer_id = ?, ower_id = ?
+            WHERE id = ?
+        """
+        CURSOR.execute(sql, (self.purchase_date, self.store, 
+                             self.expense_amount, self.payer_id, self.ower_id, self.id))
+        CONN.commit()
+
     
 
 
