@@ -118,6 +118,48 @@ class Expense:
         del type(self).all[self.id]
         self.id = None
 
+    @classmethod
+    def create(cls, purchase_date, store, expense_amount, payer_id, ower_id):
+        expense = cls(purchase_date, store, expense_amount, payer_id, ower_id)
+        expense.save()
+        return expense
+    
+    @classmethod
+    def instance_from_db(cls, row):
+        expense = cls.all.get(row[0])
+        if expense:
+            expense.purchase_date = row[1]
+            expense.store = row[2]
+            expense.expense_amount = row[3]
+            expense.payer_id = row[4]
+            expense.ower_id = row[5]
+        else:
+            expense = cls(row[1], row[2], row[3], row[4], row[5])
+            expense.id = row[0]
+            cls.all[expense.id] = expense
+        return expense
+    
+    @classmethod
+    def get_all(cls):
+        sql = """
+            SELECT *
+            FROM expenses
+        """
+        rows = CURSOR.execute(sql).fetchall()
+
+        return [cls.instance_from_db(row) for row in rows]
+    
+    @classmethod
+    def find_by_id(cls, id):
+        sql = """
+            SELECT *
+            FROM expenses
+            WHERE id = ?
+        """
+        row = CURSOR.execute(sql, (id,)).fetchone()
+        return cls.instance_from_db(row) if row else None
+    
+    
     
 
 
