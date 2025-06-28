@@ -8,6 +8,11 @@ class User:
         self.id = id
         self.name = name
         self.income = income
+
+    def __repr__(self):
+        return (
+            f"{self.name}, id: {self.id}, income: {self.income}"
+        )
     
     @property
     def name(self):

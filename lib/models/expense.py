@@ -17,6 +17,11 @@ class Expense:
         self.ower_id = ower_id
         self.is_settled = is_settled
 
+    def __repr__(self):
+        return (
+            f"Expense: {self.purchase_date}, {self.purchase_category}, {self.store}, {self.expense_amount}, payer: {self.payer_id}, ower: {self.ower_id}"
+        )
+
     @property
     def purchase_category(self):
         return self._purchase_category
@@ -162,6 +167,27 @@ class Expense:
         """
         row = CURSOR.execute(sql, (id,)).fetchone()
         return cls.instance_from_db(row) if row else None
+    
+    @classmethod
+    def find_all_by_ower_id(cls, ower_id):
+        sql = """
+            SELECT *
+            FROM expenses
+            WHERE ower_id = ?
+        """
+        rows = CURSOR.execute(sql, (ower_id,)).fetchall()
+
+        return [cls.instance_from_db(row) for row in rows]
+    
+    @classmethod
+    def find_unsettled_expenses(cls):
+        sql = """
+            SELECT *
+            FROM expenses
+            WHERE is_settled = 0
+        """
+        rows = CURSOR.execute(sql).fetchall()
+        return [cls.instance_from_db(row) for row in rows]
     
 
     
