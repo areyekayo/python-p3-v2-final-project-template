@@ -19,7 +19,7 @@ class Expense:
 
     def __repr__(self):
         return (
-            f"Expense: {self.purchase_date}, {self.purchase_category}, {self.store}, {self.expense_amount}, payer: {self.payer_id}, ower: {self.ower_id}"
+            f"Expense: {self.purchase_date}, {self.purchase_category}, {self.store}, {self.expense_amount}, payer: {self.payer_id}, ower: {self.ower_id}, Is settled: {bool(self.is_settled)}"
         )
 
     @property
@@ -188,6 +188,16 @@ class Expense:
         """
         rows = CURSOR.execute(sql).fetchall()
         return [cls.instance_from_db(row) for row in rows]
+    
+    def settle(self):
+        sql = """
+            UPDATE expenses
+            SET is_settled = 1
+            WHERE id = ?
+        """
+        CURSOR.execute(sql, (self.id,))
+        CONN.commit()
+        self.is_settled = 1
     
 
     
