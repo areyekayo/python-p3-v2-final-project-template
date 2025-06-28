@@ -79,6 +79,44 @@ class User:
         """
         row = CURSOR.execute(sql, (name,)).fetchone()
         return cls.instance_from_db(row) if row else None
+    
+    def update(self):
+        sql = """
+            UPDATE users
+            SET name = ?, income = ?
+            WHERE id = ?
+        """
+        CURSOR.execute(sql, (self.name, self.income, self.id))
+        CONN.commit()
+
+    def delete(self):
+        sql = """
+            DELETE FROM users
+            WHERE id = ?
+        """
+
+        CURSOR.execute(sql, (self.id,))
+        CONN.commit()
+
+        del type(self).all[self.id]
+
+    @classmethod
+    def get_all(cls):
+        sql = """
+            SELECT *
+            FROM users
+            WHERE id = ?
+        """
+
+    def expenses(self):
+        from expense import Expense
+        sql = """
+            SELECT * FROM expenses
+            WHERE payer_id = ?
+        """
+        CURSOR.execute(sql, (self.id))
+        rows = CURSOR.fetchall()
+        return [Expense.instance_from_db(row for row in rows)]
         
     
         
