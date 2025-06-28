@@ -3,11 +3,11 @@ from user import User
 
 class Expense:
 
-    all = []
+    all = {}
     # Initialize a purchase category dict to store preferences to split bills proportionally or equally
     purchase_category_type = {"Groceries": "", "Restaurant": "", "Home Supplies": "", "Event": "", "Bar": ""}
 
-    def __init__(self, purchase_date, purchase_category, store, expense_amount, payer_id, ower_id, is_settled=False):
+    def __init__(self, purchase_date, purchase_category, store, expense_amount, payer_id, ower_id, is_settled=0, id=None):
         self.id = id
         self.purchase_date = purchase_date
         self.purchase_category = purchase_category
@@ -16,8 +16,7 @@ class Expense:
         self.payer_id = payer_id
         self.ower_id = ower_id
         self.is_settled = is_settled
-        Expense.all.append(self)
-    
+
     @property
     def purchase_category(self):
         return self._purchase_category
@@ -45,7 +44,7 @@ class Expense:
         return self._payer_id
     
     @payer_id.setter
-    def payer(self, payer_id):
+    def payer_id(self, payer_id):
         if type(payer_id) is int and User.find_by_id(payer_id):
             self._payer_id = payer_id
         else:
@@ -68,12 +67,15 @@ class Expense:
             CREATE TABLE IF NOT EXISTS expenses (
             id  INTEGER PRIMARY KEY,
             purchase_date TEXT,
+            purchase_category TEXT,
             store TEXT,
             expense_amount REAL,
             payer_id INTEGER,
-            FOREIGN KEY (department_id) REFERENCES users(id)),
             ower_id INTEGER,
-            FOREIGN KEY (ower_id) REFERENCES users(id))
+            is_settled INTEGER,
+            FOREIGN KEY (payer_id) REFERENCES users(id),
+            FOREIGN KEY (ower_id) REFERENCES users(id)
+        )
         """
         CURSOR.execute(sql)
         CONN.commit()
@@ -88,10 +90,10 @@ class Expense:
 
     def save(self):
         sql = """
-            INSERT INTO expenses (purchase_date, store, expense_amount, payer_id, ower_id)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO expenses (purchase_date, purchase_category, store, expense_amount, payer_id, ower_id, is_settled)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         """
-        CURSOR.execute(sql, (self.purchase_date, self.store, self.expense_amount, self.payer_id, self.ower_id))
+        CURSOR.execute(sql, (self.purchase_date, self.purchase_category, self.store, self.expense_amount, self.payer_id, self.ower_id, self.is_settled))
         CONN.commit()
 
         self.id = CURSOR.lastrowid
@@ -100,11 +102,11 @@ class Expense:
     def update(self):
         sql = """
             UPDATE expenses
-            SET purchase_date = ?, store = ?, expense_amount = ?, payer_id = ?, ower_id = ?
+            SET purchase_date = ?, purchase_category = ?, store = ?, expense_amount = ?, payer_id = ?, ower_id = ?
             WHERE id = ?
         """
-        CURSOR.execute(sql, (self.purchase_date, self.store, 
-                             self.expense_amount, self.payer_id, self.ower_id, self.id))
+        CURSOR.execute(sql, (self.purchase_date, self.purchase_category, 
+                             self.store, self.expense_amount, self.payer_id, self.ower_id, self.id))
         CONN.commit()
 
     def delete(self):
@@ -119,8 +121,8 @@ class Expense:
         self.id = None
 
     @classmethod
-    def create(cls, purchase_date, store, expense_amount, payer_id, ower_id):
-        expense = cls(purchase_date, store, expense_amount, payer_id, ower_id)
+    def create(cls, purchase_date, purchase_category, store, expense_amount, payer_id, ower_id, is_settled):
+        expense = cls(purchase_date, purchase_category, store, expense_amount, payer_id, ower_id, is_settled)
         expense.save()
         return expense
     
@@ -129,12 +131,14 @@ class Expense:
         expense = cls.all.get(row[0])
         if expense:
             expense.purchase_date = row[1]
-            expense.store = row[2]
-            expense.expense_amount = row[3]
-            expense.payer_id = row[4]
-            expense.ower_id = row[5]
+            expense.purchase_category = row[2]
+            expense.store = row[3]
+            expense.expense_amount = row[4]
+            expense.payer_id = row[5]
+            expense.ower_id = row[6]
+            expense.is_settled = row[7]
         else:
-            expense = cls(row[1], row[2], row[3], row[4], row[5])
+            expense = cls(row[1], row[2], row[3], row[4], row[5], row[6], row[7])
             expense.id = row[0]
             cls.all[expense.id] = expense
         return expense
@@ -159,7 +163,7 @@ class Expense:
         row = CURSOR.execute(sql, (id,)).fetchone()
         return cls.instance_from_db(row) if row else None
     
-    
+
     
 
 

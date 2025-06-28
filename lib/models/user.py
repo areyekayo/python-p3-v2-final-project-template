@@ -4,7 +4,7 @@ class User:
 
     all = {}
 
-    def __init__(self, name, income):
+    def __init__(self, name, income, id=None):
         self.id = id
         self.name = name
         self.income = income
@@ -40,6 +40,14 @@ class User:
         CURSOR.execute(sql)
         CONN.commit()
     
+    @classmethod
+    def drop_table(cls):
+        sql = """
+            DROP TABLE IF EXISTS users
+        """
+        CURSOR.execute(sql)
+        CONN.commit()
+    
     def save(self):
         sql = """
             INSERT INTO users (name, income)
@@ -69,6 +77,16 @@ class User:
             user.id = row[0]
             cls.all[user.id] = user
         return user
+    
+    @classmethod
+    def find_by_id(cls, id):
+        sql = """
+            SELECT *
+            FROM users
+            WHERE id = ?
+        """
+        row = CURSOR.execute(sql, (id,)).fetchone()
+        return cls.instance_from_db(row) if row else None
 
     @classmethod
     def find_by_name(cls, name):
@@ -105,8 +123,10 @@ class User:
         sql = """
             SELECT *
             FROM users
-            WHERE id = ?
         """
+        rows = CURSOR.execute(sql).fetchall()
+
+        return [cls.instance_from_db(row) for row in rows]
 
     def expenses(self):
         from expense import Expense
