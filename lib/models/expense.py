@@ -1,5 +1,5 @@
 from __init__ import CURSOR, CONN
-import user
+from user import User
 
 class Expense:
 
@@ -7,14 +7,14 @@ class Expense:
     # Initialize a purchase category dict to store preferences to split bills proportionally or equally
     purchase_category_type = {"Groceries": "", "Restaurant": "", "Home Supplies": "", "Event": "", "Bar": ""}
 
-    def __init__(self, purchase_date, purchase_category, store, expense_amount, payer, ower, is_settled=False):
+    def __init__(self, purchase_date, purchase_category, store, expense_amount, payer_id, ower_id, is_settled=False):
         self.id = id
         self.purchase_date = purchase_date
         self.purchase_category = purchase_category
         self.store = store
         self.expense_amount = expense_amount
-        self.payer = payer
-        self.ower = ower
+        self.payer_id = payer_id
+        self.ower_id = ower_id
         self.is_settled = is_settled
         Expense.all.append(self)
     
@@ -41,26 +41,53 @@ class Expense:
         except: raise ValueError("Expense amount must be a dollar and cent amount: 12.34")
     
     @property
-    def payer(self):
-        return self._payer
+    def payer_id(self):
+        return self._payer_id
     
-    @payer.setter
-    def payer(self, payer):
-        if not isinstance(payer, User):
-            raise ValueError("Payer is not a user")
+    @payer_id.setter
+    def payer(self, payer_id):
+        if type(payer_id) is int and User.find_by_id(payer_id):
+            self._payer_id = payer_id
         else:
-            self._payer = payer
+            raise ValueError("Payer must reference a user in the database")
     
     @property
-    def ower(self):
-        return self._ower
+    def ower_id(self):
+        return self._ower_id
     
-    @ower.setter
-    def ower(self, ower):
-        if not isinstance(ower, User):
-            raise ValueError("Ower is not a user")
+    @ower_id.setter
+    def ower_id(self, ower_id):
+        if type(ower_id) is int and User.find_by_id(ower_id):
+            self._ower_id = ower_id
         else:
-            self._ower = ower
+            raise ValueError("Payer must reference a user in the database")
+    
+    @classmethod
+    def create_table(cls):
+        sql = """
+            CREATE TABLE IF NOT EXISTS expenses (
+            id  INTEGER PRIMARY KEY,
+            purchase_date TEXT,
+            store TEXT,
+            expense_amount REAL,
+            payer_id INTEGER,
+            FOREIGN KEY (department_id) REFERENCES users(id)),
+            ower_id INTEGER,
+            FOREIGN KEY (ower_id) REFERENCES users(id))
+        """
+        CURSOR.execute(sql)
+        CONN.commit()
+    
+    @classmethod
+    def drop_table(cls):
+        sql = """
+            DROP TABLE IF EXISTS expenses;
+        """
+        CURSOR.execute(sql)
+        CONN.commit()
+
+    
+
 
     
     
