@@ -115,16 +115,16 @@ class Payment:
     def settle_payment(self):
         sql = """
             UPDATE payments
-            SET is_paid = 1, paid_date = ?
+            SET is_paid = ?, paid_date = ?
             WHERE id = ?
         """
         self.is_paid = 1
         self.paid_date = date.today().strftime("%Y-%m-%d")
-        CURSOR.execute(sql, (self.paid_date, self.id))
+        CURSOR.execute(sql, (self.is_paid, self.paid_date, self.id))
         CONN.commit()
 
     @classmethod
-    def get_unsettled_payments_by_ower(cls, ower_id):
+    def find_unsettled_payments_by_ower(cls, ower_id):
         sql = """
             SELECT *
             FROM payments

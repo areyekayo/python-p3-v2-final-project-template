@@ -181,12 +181,12 @@ class Expense:
     def settle(self):
         sql = """
             UPDATE expenses
-            SET is_settled = 1, settled_date = ?
+            SET is_settled = ?, settled_date = ?
             WHERE id = ?
         """
         self.settled_date = date.today().strftime("%Y-%m-%d")
         self.is_settled = 1
-        CURSOR.execute(sql, (self.settled_date, self.id))
+        CURSOR.execute(sql, (self.is_settled, self.settled_date, self.id))
         CONN.commit()
 
     def calculate_payment(self, owers_list):
@@ -199,4 +199,13 @@ class Expense:
             ower_share = ower.income / total_income
             ower_payment = round(self.expense_amount * ower_share, 2)
             Payment.create(self.id, self.payer_id, ower_id, ower_payment)
-            print(f'{ower.name} owes ${round(ower_payment, 2)}, {round(ower_share, 2)} of {self.expense_amount}')
+            print(f'{ower.name} owes {payer.name} ${round(ower_payment, 2)}, {round(ower_share, 2)} of {self.expense_amount}')
+
+    def payments(self):
+        sql = """
+            SELECT * FROM payments
+            WHERE expense_id = ?
+        """
+        CURSOR.execute(sql, (self.id,))
+        rows = CURSOR.fetchall()
+        return [Payment.instance_from_db(row) for row in rows]
