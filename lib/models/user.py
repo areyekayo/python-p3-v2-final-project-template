@@ -3,6 +3,7 @@ from __init__ import CONN, CURSOR
 class User:
 
     all = {}
+    total_income = 0
 
     def __init__(self, name, income, id=None):
         self.id = id
@@ -142,6 +143,14 @@ class User:
         CURSOR.execute(sql, (self.id))
         rows = CURSOR.fetchall()
         return [Expense.instance_from_db(row for row in rows)]
+    
+    # @classmethod
+    # def get_user_incomes(cls, user_list):
+    #     total_income = 0
+    #     for user_id in user_list:
+    #         total_income += cls.instance_from_db(user_id).income
+    
+
         
     
         

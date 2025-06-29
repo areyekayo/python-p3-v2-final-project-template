@@ -14,12 +14,12 @@ def reset_database():
 
     sam = User.create("Sam", 100000)
     alex = User.create("Alex", 50000)
-    Expense.create("2025-01-01", "Groceries", "Hannaford", 88.50, sam.id, alex.id, 0)
-    Expense.create("2025-01-01", "Home Supplies", "Amazon", 43.76, sam.id, alex.id, 0)
-    Expense.create("2025-01-02", "Bar", "Diane's", 68.00, alex.id, sam.id, 0)
-    Expense.create("2025-01-03", "Event", "Lincoln Center", 100.00, alex.id, sam.id, 0)
-    Expense.create("2025-01-05", "Restaurant", "Tosco's", 47.34, sam.id, alex.id, 0)
-    Expense.create("2025-01-05", "Groceries", "Adam's", 110.14, alex.id, sam.id, 0)
+    Expense.create("2025-01-01", "Groceries", "Hannaford", 88.50, sam.id, 1)
+    Expense.create("2025-01-01", "Home Supplies", "Amazon", 43.76, sam.id, 1)
+    Expense.create("2025-01-02", "Bar", "Diane's", 68.00, alex.id, 1)
+    Expense.create("2025-01-03", "Event", "Lincoln Center", 100.00, alex.id, 0)
+    Expense.create("2025-01-05", "Restaurant", "Tosco's", 47.34, sam.id, 0)
+    Expense.create("2025-01-05", "Groceries", "Adam's", 110.14, alex.id, 0)
 
 reset_database()
 ipdb.set_trace()
