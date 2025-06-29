@@ -1,16 +1,17 @@
 from user import User
+from datetime import date
 from __init__ import CONN, CURSOR
 
 class Payment:
     all = {}
 
-    def __init__(self, expense_id, recipient_id, ower_id, payment_amount, is_paid=0, payment_date=None, id=None):
+    def __init__(self, expense_id, recipient_id, ower_id, payment_amount, is_paid=0, paid_date=None, id=None):
         self.expense_id = expense_id
         self.recipient_id = recipient_id
         self.ower_id = ower_id
-        self.payment_amount = self.payment_amount
+        self.payment_amount = payment_amount
         self.is_paid = is_paid
-        self.payment_date = payment_date
+        self.paid_date = paid_date
         self.id = id
     
 
@@ -32,6 +33,16 @@ class Payment:
             self._ower_id = ower_id
         else: raise ValueError("Ower ID must reference a user in the database")
 
+    @property
+    def payment_amount(self):
+        return self._payment_amount
+    @payment_amount.setter
+    def payment_amount(self, payment_amount):
+        try:
+            payment_amount = float(payment_amount)
+            self._payment_amount = payment_amount
+        except: raise ValueError("Payment amount must be a dollar and cent amount: 12.34")
+
     @classmethod
     def create_table(cls):
         sql = """
@@ -42,7 +53,7 @@ class Payment:
             ower_id INTEGER,
             payment_amount REAL,
             is_paid INTEGER,
-            payment_date TEXT,
+            paid_date TEXT,
             FOREIGN KEY (expense_id) REFERENCES expenses(id),
             FOREIGN KEY (recipient_id) REFERENCES users(id),
             FOREIGN KEY (ower_id) REFERENCES users(id))
@@ -60,19 +71,19 @@ class Payment:
 
     def save(self):
         sql = """
-            INSERT INTO payments (expense_id, recipient_id, ower_id, payment_amount, is_paid, payment_date)
+            INSERT INTO payments (expense_id, recipient_id, ower_id, payment_amount, is_paid, paid_date)
             VALUES (?, ?, ?, ?, ?, ?)
         """
         CURSOR.execute(sql, (self.expense_id, self.recipient_id, self.ower_id,
-                            self.payment_amount, self.is_paid, self.payment_date))
+                            self.payment_amount, self.is_paid, self.paid_date))
         CONN.commit()
 
         self.id = CURSOR.lastrowid
         type(self).all[self.id] = self
 
     @classmethod
-    def create(cls, expense_id, recipient_id, ower_id, payment_amount, is_paid, payment_date):
-        payment = cls(expense_id, recipient_id, ower_id, payment_amount, is_paid, payment_date)
+    def create(cls, expense_id, recipient_id, ower_id, payment_amount, is_paid=0, paid_date=None):
+        payment = cls(expense_id, recipient_id, ower_id, payment_amount, is_paid, paid_date)
         payment.save()
         return payment
     
@@ -85,11 +96,12 @@ class Payment:
             payment.ower_id = row[3]
             payment.payment_amount = row[4]
             payment.is_paid = row[5]
-            payment.payment_date = row[6]
+            payment.paid_date = row[6]
         else:
             payment = cls(row[1], row[2], row[3], row[4], row[5], row[6])
             payment.id = row[0]
             cls.all[payment.id] = payment
+        return payment
     
     @classmethod
     def get_all(cls):
@@ -99,23 +111,25 @@ class Payment:
         """
         rows = CURSOR.execute(sql).fetchall()
         return [cls.instance_from_db(row) for row in rows]
-
     
+    def settle_payment(self):
+        sql = """
+            UPDATE payments
+            SET is_paid = 1, paid_date = ?
+            WHERE id = ?
+        """
+        self.is_paid = 1
+        self.paid_date = date.today().strftime("%Y-%m-%d")
+        CURSOR.execute(sql, (self.paid_date, self.id))
+        CONN.commit()
 
-    
-
-
-        
-    
-
-
-    
-
-    
-
-    
-
-
-
-   
-        
+    @classmethod
+    def get_unsettled_payments_by_ower(cls, ower_id):
+        sql = """
+            SELECT *
+            FROM payments
+            WHERE ower_id = ? AND is_paid = 0
+        """
+        CURSOR.execute(sql, (ower_id,))
+        rows = CURSOR.fetchall()
+        return [cls.instance_from_db(row) for row in rows]

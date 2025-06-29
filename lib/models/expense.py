@@ -1,7 +1,7 @@
 from __init__ import CURSOR, CONN
 from user import User
 from payment import Payment
-from datetime import datetime
+from datetime import datetime, date
 
 class Expense:
 
@@ -181,23 +181,22 @@ class Expense:
     def settle(self):
         sql = """
             UPDATE expenses
-            SET is_settled = 1
+            SET is_settled = 1, settled_date = ?
             WHERE id = ?
         """
-        CURSOR.execute(sql, (self.id,))
-        CONN.commit()
+        self.settled_date = date.today().strftime("%Y-%m-%d")
         self.is_settled = 1
+        CURSOR.execute(sql, (self.settled_date, self.id))
+        CONN.commit()
 
     def calculate_payment(self, owers_list):
-        users = User.get_users_by_id(owers_list)
+        owers = User.get_users_by_id(owers_list)
         payer = User.find_by_id(self.payer_id)
-        total_income = sum(user.income for user in users.values()) + payer.income
-        print(f'users: {users}, total income: {total_income}')
+        total_income = sum(ower.income for ower in owers.values()) + payer.income
 
         for ower_id in owers_list:
-            ower = users[ower_id]
+            ower = owers[ower_id]
             ower_share = ower.income / total_income
             ower_payment = round(self.expense_amount * ower_share, 2)
             Payment.create(self.id, self.payer_id, ower_id, ower_payment)
-
-            print(f'{ower.name} owes ${round(ower_payment, 2)}')
+            print(f'{ower.name} owes ${round(ower_payment, 2)}, {round(ower_share, 2)} of {self.expense_amount}')
