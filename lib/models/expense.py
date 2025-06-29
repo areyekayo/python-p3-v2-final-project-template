@@ -55,18 +55,7 @@ class Expense:
             self._payer_id = payer_id
         else:
             raise ValueError("Payer must reference a user in the database")
-    
-    # @property
-    # def ower_id(self):
-    #     return self._ower_id
-    
-    # @ower_id.setter
-    # def ower_id(self, ower_id):
-    #     if type(ower_id) is int and User.find_by_id(ower_id):
-    #         self._ower_id = ower_id
-    #     else:
-    #         raise ValueError("Ower must reference a user in the database")
-        
+
     @property
     def purchase_date(self):
         return self._purchase_date
@@ -78,7 +67,6 @@ class Expense:
             self._purchase_date = purchase_date
         except: ValueError("Purchase Date must be in YYYY-MM-DD format")
 
-    
     @classmethod
     def create_table(cls):
         sql = """
@@ -210,11 +198,12 @@ class Expense:
         CONN.commit()
         self.is_settled = 1
 
-    # @classmethod
-    # def top_payer_amount(cls):
-    #     payer_amount = {}
-    #     for expense in cls.find_unsettled_expenses():
-    #         payer_amount[expense.payer_id] = payer_amount.get(expense.payer_id, 0) + expense.expense_amount
+    # def create_payment(self, payer_id, owers_list):
+    #     users = User.get_users_by_id(owers_list.append(payer_id))
+    #     total_income = sum(user.income for user in users)
+    #     for ower in owers_list:
+
+
         
         
 

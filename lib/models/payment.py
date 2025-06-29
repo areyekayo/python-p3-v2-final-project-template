@@ -41,6 +41,69 @@ class Payment:
         if type(ower_id) is int and User.find_by_id(ower_id):
             self._ower_id = ower_id
         else: raise ValueError("Ower ID must reference a user in the database")
+
+    @classmethod
+    def create_table(cls):
+        sql = """
+            CREATE TABLE IF NOT EXISTS payments (
+            id INTEGER PRIMARY KEY,
+            expense_id INTEGER,
+            recipient_id INTEGER,
+            ower_id INTEGER,
+            payment_amount REAL,
+            is_paid INTEGER,
+            payment_date TEXT,
+            FOREIGN KEY (expense_id) REFERENCES expenses(id),
+            FOREIGN KEY (recipient_id) REFERENCES users(id),
+            FOREIGN KEY (ower_id) REFERENCES users(id))
+        """
+        CURSOR.execute(sql)
+        CONN.commit()
+
+    def save(self):
+        sql = """
+            INSERT INTO payments (expense_id, recipient_id, ower_id, payment_amount, is_paid, payment_date)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """
+        CURSOR.execute(sql, (self.expense_id, self.recipient_id, self.ower_id,
+                            self.payment_amount, self.is_paid, self.payment_date))
+        CONN.commit()
+
+        self.id = CURSOR.lastrowid
+        type(self).all[self.id] = self
+
+    @classmethod
+    def create(cls, expense_id, recipient_id, ower_id, payment_amount, is_paid, payment_date):
+        payment = cls(expense_id, recipient_id, ower_id, payment_amount, is_paid, payment_date)
+        payment.save()
+        return payment
+    
+    @classmethod
+    def instance_from_db(cls, row):
+        payment = cls.all.get(row[0])
+        if payment:
+            payment.expense_id = row[1]
+            payment.recipient_id = row[2]
+            payment.ower_id = row[3]
+            payment.payment_amount = row[4]
+            payment.is_paid = row[5]
+            payment.payment_date = row[6]
+        else:
+            payment = cls(row[1], row[2], row[3], row[4], row[5], row[6])
+            payment.id = row[0]
+            cls.all[payment.id] = payment
+    
+    @classmethod
+    def get_all(cls):
+        sql = """
+            SELECT *
+            FROM payments
+        """
+        rows = CURSOR.execute(sql).fetchall()
+        return [cls.instance_from_db(row) for row in rows]
+
+    
+
     
 
 

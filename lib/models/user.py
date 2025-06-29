@@ -145,10 +145,10 @@ class User:
         return [Expense.instance_from_db(row for row in rows)]
     
     @classmethod
-    def get_user_incomes(cls, user_list):
-        return sum(User.find_by_id(id).income for id in user_list)
+    def get_users_by_id(cls, user_list):
+        return [User.find_by_id(id) for id in user_list]
     
-    
+
         
     
 
