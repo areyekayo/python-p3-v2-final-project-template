@@ -1,5 +1,6 @@
 from __init__ import CURSOR, CONN
 from user import User
+from payment import Payment
 from datetime import datetime
 
 class Expense:
@@ -167,17 +168,6 @@ class Expense:
         row = CURSOR.execute(sql, (id,)).fetchone()
         return cls.instance_from_db(row) if row else None
     
-    # @classmethod
-    # def find_all_by_ower_id(cls, ower_id):
-    #     sql = """
-    #         SELECT *
-    #         FROM expenses
-    #         WHERE ower_id = ?
-    #     """
-    #     rows = CURSOR.execute(sql, (ower_id,)).fetchall()
-
-    #     return [cls.instance_from_db(row) for row in rows]
-    
     @classmethod
     def find_unsettled_expenses(cls):
         sql = """
@@ -198,30 +188,16 @@ class Expense:
         CONN.commit()
         self.is_settled = 1
 
-    # def create_payment(self, payer_id, owers_list):
-    #     users = User.get_users_by_id(owers_list.append(payer_id))
-    #     total_income = sum(user.income for user in users)
-    #     for ower in owers_list:
+    def calculate_payment(self, owers_list):
+        users = User.get_users_by_id(owers_list)
+        payer = User.find_by_id(self.payer_id)
+        total_income = sum(user.income for user in users.values()) + payer.income
+        print(f'users: {users}, total income: {total_income}')
 
+        for ower_id in owers_list:
+            ower = users[ower_id]
+            ower_share = ower.income / total_income
+            ower_payment = round(self.expense_amount * ower_share, 2)
+            Payment.create(self.id, self.payer_id, ower_id, ower_payment)
 
-        
-        
-
-    
-
-    
-
-
-    
-    
-
-        
-
-    
-    
-
-    
-    
-
-
-    
+            print(f'{ower.name} owes ${round(ower_payment, 2)}')

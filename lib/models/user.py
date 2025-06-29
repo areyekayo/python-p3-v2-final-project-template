@@ -146,7 +146,7 @@ class User:
     
     @classmethod
     def get_users_by_id(cls, user_list):
-        return [User.find_by_id(id) for id in user_list]
+        return {id: User.find_by_id(id) for id in user_list}
     
 
         

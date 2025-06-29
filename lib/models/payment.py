@@ -1,28 +1,18 @@
 from user import User
-from expense import Expense
 from __init__ import CONN, CURSOR
 
 class Payment:
     all = {}
 
-    def __init__(self, expense_id, recipient_id, ower_id, is_paid=0, payment_date=None, id=None):
+    def __init__(self, expense_id, recipient_id, ower_id, payment_amount, is_paid=0, payment_date=None, id=None):
         self.expense_id = expense_id
         self.recipient_id = recipient_id
         self.ower_id = ower_id
-        self.payment_amount = self.calculate_payment_amount()
+        self.payment_amount = self.payment_amount
         self.is_paid = is_paid
         self.payment_date = payment_date
         self.id = id
     
-    @property
-    def expense_id(self):
-        return self._expense_id
-    
-    @expense_id.setter
-    def expense_id(self, expense_id):
-        if type(expense_id) is int and Expense.find_by_id(expense_id):
-            self._expense_id = expense_id
-        else: raise ValueError("Expense ID must reference an expense in the database")
 
     @property
     def recipient_id(self):
@@ -56,6 +46,14 @@ class Payment:
             FOREIGN KEY (expense_id) REFERENCES expenses(id),
             FOREIGN KEY (recipient_id) REFERENCES users(id),
             FOREIGN KEY (ower_id) REFERENCES users(id))
+        """
+        CURSOR.execute(sql)
+        CONN.commit()
+
+    @classmethod
+    def drop_table(cls):
+        sql = """
+            DROP TABLE IF EXISTS payments
         """
         CURSOR.execute(sql)
         CONN.commit()
