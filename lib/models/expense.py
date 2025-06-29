@@ -21,7 +21,7 @@ class Expense:
 
     def __repr__(self):
         return (
-            f"Expense: {self.purchase_date}, {self.purchase_category}, {self.store}, {self.expense_amount}, payer: {self.payer_id}, Is settled: {bool(self.is_settled)}"
+            f"Expense: {self.purchase_date}, {self.purchase_category}, {self.store}, {self.expense_amount}, payer: {self.payer_id}, Is settled: {bool(self.is_settled)}, settled date: {self.settled_date}"
         )
 
     @property
@@ -179,17 +179,21 @@ class Expense:
         return [cls.instance_from_db(row) for row in rows]
     
     def settle(self):
+        """Settles an expense as fully paid if there are no unsettled payments for the expense."""
         sql = """
             UPDATE expenses
             SET is_settled = ?, settled_date = ?
             WHERE id = ?
         """
-        self.settled_date = date.today().strftime("%Y-%m-%d")
-        self.is_settled = 1
-        CURSOR.execute(sql, (self.is_settled, self.settled_date, self.id))
-        CONN.commit()
+        if len(self.unsettled_payments()) == 0:
+            self.settled_date = date.today().strftime("%Y-%m-%d")
+            self.is_settled = 1
+            CURSOR.execute(sql, (self.is_settled, self.settled_date, self.id))
+            CONN.commit()
+        else: raise Exception("Expense has unsettled payments")
 
     def calculate_payment(self, owers_list):
+        """Calculates and creates payments for the expense with a list of user IDs who will pay back the expense payer. Payment amounts are based on total income and the ower's porportion of the total income."""
         owers = User.get_users_by_id(owers_list)
         payer = User.find_by_id(self.payer_id)
         total_income = sum(ower.income for ower in owers.values()) + payer.income
@@ -202,6 +206,7 @@ class Expense:
             print(f'{ower.name} owes {payer.name} ${round(ower_payment, 2)}, {round(ower_share, 2)} of {self.expense_amount}')
 
     def payments(self):
+        """Gets payments related to the expense."""
         sql = """
             SELECT * FROM payments
             WHERE expense_id = ?
@@ -209,3 +214,10 @@ class Expense:
         CURSOR.execute(sql, (self.id,))
         rows = CURSOR.fetchall()
         return [Payment.instance_from_db(row) for row in rows]
+    
+    def unsettled_payments(self):
+        """Gets unsettled payments related to the expense."""
+        return [payment for payment in self.payments() if payment.is_paid == 0]
+    
+    def settled_payments(self):
+        return [payment for payment in self.payments() if payment.is_paid == 1]

@@ -148,16 +148,15 @@ class User:
     def get_users_by_id(cls, user_list):
         return {id: User.find_by_id(id) for id in user_list}
     
-    def payments_owed(self):
+    def owed_payments(self):
         from payment import Payment
         sql = """
             SELECT * FROM payments
-            WHERE ower_id = ?
+            WHERE ower_id = ? AND is_paid = 0
         """
         CURSOR.execute(sql, (self.id,))
         rows = CURSOR.fetchall()
         return [Payment.instance_from_db(row) for row in rows]
-    
 
         
     

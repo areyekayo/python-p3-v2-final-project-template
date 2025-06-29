@@ -122,14 +122,3 @@ class Payment:
         self.paid_date = date.today().strftime("%Y-%m-%d")
         CURSOR.execute(sql, (self.is_paid, self.paid_date, self.id))
         CONN.commit()
-
-    @classmethod
-    def find_unsettled_payments_by_ower(cls, ower_id):
-        sql = """
-            SELECT *
-            FROM payments
-            WHERE ower_id = ? AND is_paid = 0
-        """
-        CURSOR.execute(sql, (ower_id,))
-        rows = CURSOR.fetchall()
-        return [cls.instance_from_db(row) for row in rows]
