@@ -14,7 +14,6 @@ class Payment:
         self.paid_date = paid_date
         self.id = id
     
-
     @property
     def recipient_id(self):
         return self._recipient_id
@@ -80,6 +79,16 @@ class Payment:
 
         self.id = CURSOR.lastrowid
         type(self).all[self.id] = self
+
+    def delete(self):
+        sql = """
+            DELETE FROM payments
+            WHERE id = ?
+        """
+        CURSOR.execute(sql, (self.id,))
+        CONN.commit()
+        del type(self).all[self.id]
+
 
     @classmethod
     def create(cls, expense_id, recipient_id, ower_id, payment_amount, is_paid=0, paid_date=None):
