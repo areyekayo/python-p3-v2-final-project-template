@@ -1,6 +1,6 @@
-from __init__ import CURSOR, CONN
-from user import User
-from payment import Payment
+from models.__init__ import CURSOR, CONN
+from models.user import User
+from models.payment import Payment
 from datetime import datetime, date
 
 class Expense:
@@ -214,6 +214,9 @@ class Expense:
         CURSOR.execute(sql, (self.id,))
         rows = CURSOR.fetchall()
         return [Payment.instance_from_db(row) for row in rows]
+    
+    def owers(self):
+        return [ower.id for ower in self.payments()]
     
     def unsettled_payments(self):
         """Gets unsettled payments related to the expense."""

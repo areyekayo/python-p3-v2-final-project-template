@@ -1,4 +1,4 @@
-from __init__ import CONN, CURSOR
+from models.__init__ import CONN, CURSOR
 
 class User:
 
@@ -12,7 +12,7 @@ class User:
 
     def __repr__(self):
         return (
-            f"{self.name}, id: {self.id}, income: {self.income}"
+            f"{self.name}, income: {self.income}"
         )
     
     @property
@@ -145,11 +145,14 @@ class User:
         rows = CURSOR.fetchall()
         return [Expense.instance_from_db(row) for row in rows]
     
+    def get_unsettled_expenses(self):
+        return [expense for expense in self.expenses() if expense.is_settled == 0]
+    
     @classmethod
     def get_users_by_id(cls, user_list):
         return {id: User.find_by_id(id) for id in user_list}
     
-    def owed_payments(self):
+    def get_owed_payments(self):
         from payment import Payment
         sql = """
             SELECT * FROM payments

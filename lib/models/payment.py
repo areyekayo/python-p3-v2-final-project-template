@@ -1,6 +1,6 @@
-from user import User
+from models.user import User
 from datetime import date
-from __init__ import CONN, CURSOR
+from models.__init__ import CONN, CURSOR
 
 class Payment:
     all = {}
