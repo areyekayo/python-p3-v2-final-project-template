@@ -123,6 +123,7 @@ class User:
         CONN.commit()
 
         del type(self).all[self.id]
+        self.id = None
 
     @classmethod
     def get_all(cls):
