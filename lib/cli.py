@@ -49,6 +49,7 @@ def user_menu():
             user = create_user()
         elif choice == "0":
             menu()
+            return
         
         if user:
             print(f'Selected {user.name}.')
@@ -70,9 +71,6 @@ def user_menu():
             elif option == "0":
                 return
                 
-        
-        
-
 
 if __name__ == "__main__":
     main()
