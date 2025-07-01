@@ -8,6 +8,7 @@ from helpers import (
    update_user,
    delete_user,
    get_user_expenses,
+   enter_expense,
    exit_program
 )
 
@@ -34,6 +35,7 @@ def user_menu():
         print("Select an option:")
         print("1. List Users")
         print("2. Search User Name")
+        print("3. Create user")
         print("0. Back to Main Menu")
         choice = input("> ")
         if choice == "1":
@@ -43,10 +45,31 @@ def user_menu():
             user = find_user_by_id(id)
         elif choice == "2":
             user = find_user_by_name()
+        elif choice == "3":
+            user = create_user()
         elif choice == "0":
-            return
-
-        print(f'Selected {user.name}')
+            menu()
+        
+        if user:
+            print(f'Selected {user.name}.')
+            print("Select an option: ")
+            print("1. Update User")
+            print("2. Delete User")
+            print("3. Enter an expense")
+            print("4. List user's expenses")
+            print("0. Back")
+            option = input("> ")
+            if option == "1":
+                update_user(user.id)
+            elif option == "2":
+                delete_user(user.id)
+            elif option == "3":
+                enter_expense(user.id)
+            elif option == "4":
+                get_user_expenses(user.id)
+            elif option == "0":
+                return
+                
         
         
 

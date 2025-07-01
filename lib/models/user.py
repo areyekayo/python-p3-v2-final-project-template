@@ -136,7 +136,8 @@ class User:
         return [cls.instance_from_db(row) for row in rows]
 
     def expenses(self):
-        from expense import Expense
+        """Gets the expenses that the user paid for."""
+        from models.expense import Expense
         sql = """
             SELECT * FROM expenses
             WHERE payer_id = ?

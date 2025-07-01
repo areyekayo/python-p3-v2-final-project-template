@@ -54,9 +54,25 @@ def delete_user(user_id):
 def get_user_expenses(user_id):
     if user := User.find_by_id(user_id):
         expenses = user.expenses()
+        print(f"Listing {user.name}'s expenses: ")
         for expense in expenses:
-            print(f'{expense}')
+            print(f'    Date: {expense.purchase_date}, Category: {expense.purchase_category}, Store: {expense.store}, Amount: {expense.expense_amount}, Payer: {user.name}, Settled: {bool(expense.is_settled)}, Settled Date: {expense.settled_date}' )
     else: print(f'User not found\n')
+
+def enter_expense(payer_id=None):
+    purchase_date = input("Enter the purchase date: ")
+    purchase_category = input("Enter the purchase category (Groceries, Restaurant, Home Supplies, Event, Bar): ")
+    store = input("Enter the store where purchase was made: ")
+    expense_amount = input("Enter the expense amount (ex 12.34): ")
+    if payer_id == None:
+        name = input("Enter the user name who paid for the expense: ")
+        user = User.find_by_name(name)
+    else:
+        user = User.find_by_id(payer_id)
+    expense = Expense.create(purchase_date, purchase_category, store, expense_amount, user.id, is_settled=0)
+    print(f"Successfully created new expense by ${user.name}: {expense.purchase_date}, {expense.purchase_category}, {expense.store}, {expense.expense_amount}")
+    return expense
+
 
 
 
