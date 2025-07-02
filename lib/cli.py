@@ -9,7 +9,8 @@ from helpers import (
    delete_user,
    get_user_expenses,
    enter_expense,
-   exit_program
+   exit_program,
+   get_user_owed_payments
 )
 
 def main():
@@ -26,17 +27,17 @@ def main():
 
 def menu():
     print("Please select an option:")
-    print("1. Users")
-    print("0. Exit")
+    print("     1. Users")
+    print("     0. Exit")
 
 def user_menu():
     while True:
 
         print("Select an option:")
-        print("1. List Users")
-        print("2. Search User Name")
-        print("3. Create user")
-        print("0. Back to Main Menu")
+        print("     1. List Users")
+        print("     2. Search User Name")
+        print("     3. Create user")
+        print("     0. Back to Main Menu")
         choice = input("> ")
         if choice == "1":
             list_users()
@@ -54,11 +55,12 @@ def user_menu():
         if user:
             print(f'Selected {user.name}.')
             print("Select an option: ")
-            print("1. Update User")
-            print("2. Delete User")
-            print("3. Enter an expense")
-            print("4. List user's expenses")
-            print("0. Back")
+            print("     1. Update User")
+            print("     2. Delete User")
+            print("     3. Enter an expense")
+            print("     4. List user's expenses")
+            print("     5. Make a payment")
+            print("     0. Back")
             option = input("> ")
             if option == "1":
                 update_user(user.id)
@@ -68,6 +70,18 @@ def user_menu():
                 enter_expense(user.id)
             elif option == "4":
                 get_user_expenses(user.id)
+            elif option == "5":
+                owed_payments = get_user_owed_payments(user.id)
+                if len(owed_payments) > 0:
+                    while True:
+                        print("Enter the payment number to make. Type '0' when finished:")
+                        option = input(">")
+                        if option == "0":
+                            return
+                        else:
+                            id = int(option)
+                            payment = next((payment for payment in owed_payments if payment.id == id), None)
+                            payment.settle_payment()
             elif option == "0":
                 return
                 

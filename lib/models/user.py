@@ -154,7 +154,7 @@ class User:
         return {id: User.find_by_id(id) for id in user_list}
     
     def get_owed_payments(self):
-        from payment import Payment
+        from models.payment import Payment
         sql = """
             SELECT * FROM payments
             WHERE ower_id = ? AND is_paid = 0

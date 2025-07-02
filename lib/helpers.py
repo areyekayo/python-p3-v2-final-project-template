@@ -74,6 +74,7 @@ def enter_expense(payer_id=None):
     expense = Expense.create(purchase_date, purchase_category, store, expense_amount, user.id, is_settled=0)
 
     print(f"Successfully created new expense by ${user.name}: {expense.purchase_date}, {expense.purchase_category}, {expense.store}, {expense.expense_amount}")
+
     while True:
         print(f"Enter the names of users who will pay {user.name} back for this expense, separated by commas: ")
         ower_input = input("> ")
@@ -84,6 +85,29 @@ def enter_expense(payer_id=None):
             return expense
         except: 
             ValueError("Ower names must be separated by a comma and space")
+    
+def get_user_owed_payments(ower_id=None):
+    """Gets payments that are owed by payer_id"""
+    if ower_id == None:
+        name = input("Enter the name of the person who owes payments")
+        ower = User.find_by_name(name)
+    else:
+        ower = User.find_by_id(ower_id)
+    payments = ower.get_owed_payments()
+
+    if len(payments) == 0:
+        print(f"{ower.name} has no owed payments!")
+        return None
+    else:
+        print(f"{ower.name} has {len(payments)} unpaid payments: ")
+        for payment in payments:
+            recipient = User.find_by_id(payment.recipient_id)
+            print(f"    {payment.id}: {ower.name} owes {recipient.name} ${payment.payment_amount}")
+    
+    return payments
+    
+
+
 
 
 def exit_program():

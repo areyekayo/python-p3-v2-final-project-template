@@ -224,3 +224,7 @@ class Expense:
     
     def settled_payments(self):
         return [payment for payment in self.payments() if payment.is_paid == 1]
+    
+    def is_expense_fully_repaid(self):
+        """Returns true if the expense is fully repaid (the payer has been paid back by all owers), false if not"""
+        return True if len(self.unsettled_payments()) == 0 else False
