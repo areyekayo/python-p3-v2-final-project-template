@@ -10,7 +10,8 @@ from helpers import (
    get_user_expenses,
    enter_expense,
    exit_program,
-   get_user_owed_payments
+   get_user_owed_payments,
+   make_payment
 )
 
 def main():
@@ -71,9 +72,9 @@ def user_menu():
             elif option == "4":
                 get_user_expenses(user.id)
             elif option == "5":
-                owed_payments = get_user_owed_payments(user.id)
-                if len(owed_payments) > 0:
-                    while True:
+                while True:
+                    owed_payments = get_user_owed_payments(user.id)
+                    if len(owed_payments) > 0:
                         print("Enter the payment number to make. Type '0' when finished:")
                         option = input(">")
                         if option == "0":
@@ -81,7 +82,7 @@ def user_menu():
                         else:
                             id = int(option)
                             payment = next((payment for payment in owed_payments if payment.id == id), None)
-                            payment.settle_payment()
+                            make_payment(payment.id)
             elif option == "0":
                 return
                 

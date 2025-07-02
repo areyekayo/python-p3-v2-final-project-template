@@ -102,9 +102,23 @@ def get_user_owed_payments(ower_id=None):
         print(f"{ower.name} has {len(payments)} unpaid payments: ")
         for payment in payments:
             recipient = User.find_by_id(payment.recipient_id)
-            print(f"    {payment.id}: {ower.name} owes {recipient.name} ${payment.payment_amount}")
+            expense = Expense.find_by_id(payment.expense_id)
+            print(f"    {payment.id}: {ower.name} owes {recipient.name} ${payment.payment_amount} for {expense.purchase_category} purchase at {expense.store}")
     
     return payments
+
+def make_payment(payment_id):
+    if payment := Payment.find_by_id(payment_id):
+        payment.settle_payment()
+        recipient = User.find_by_id(payment.recipient_id)
+        ower = User.find_by_id(payment.ower_id)
+        print(f"Success: {ower.name} paid {recipient.name} ${payment.payment_amount}")
+    else: print(f"Payment not found")
+
+
+
+            
+    
     
 
 

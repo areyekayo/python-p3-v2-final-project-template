@@ -132,3 +132,13 @@ class Payment:
         self.paid_date = date.today().strftime("%Y-%m-%d")
         CURSOR.execute(sql, (self.is_paid, self.paid_date, self.id))
         CONN.commit()
+
+    @classmethod
+    def find_by_id(cls, id):
+        sql = """
+            SELECT *
+            FROM payments
+            WHERE id = ?
+        """
+        row = CURSOR.execute(sql, (id,)).fetchone()
+        return cls.instance_from_db(row) if row else None
