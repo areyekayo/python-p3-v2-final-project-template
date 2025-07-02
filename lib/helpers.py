@@ -11,7 +11,7 @@ def list_users():
 def find_user_by_name():
     name = input("Enter a user's name: ")
     user = User.find_by_name(name)
-    print(user) if user else print(
+    print(f"Found {user.name}, income: {user.income}") if user else print(
         f'User {name} not found\n'
     )
     return user
@@ -39,7 +39,8 @@ def update_user(user_id):
             user.name = name
             income = input("Enter the user's new income: ")
             user.income = income
-            user = User.update(name, income)
+            print(f"Successfully updated user: {user.name}, income: {user.income}")
+            user.update()
         except Exception as exc:
             print(f'Error updating user: {exc}\n')
     else: print(f'User not found')
@@ -73,7 +74,7 @@ def enter_expense(payer_id=None):
 
     expense = Expense.create(purchase_date, purchase_category, store, expense_amount, user.id, is_settled=0)
 
-    print(f"Successfully created new expense by ${user.name}: {expense.purchase_date}, {expense.purchase_category}, {expense.store}, {expense.expense_amount}")
+    print(f"Successfully created new expense by {user.name}: {expense.purchase_date}, {expense.purchase_category}, {expense.store}, {expense.expense_amount}")
 
     while True:
         print(f"Enter the names of users who will pay {user.name} back for this expense, separated by commas: ")
@@ -115,13 +116,16 @@ def make_payment(payment_id):
         print(f"Success: {ower.name} paid {recipient.name} ${payment.payment_amount}")
     else: print(f"Payment not found")
 
+def list_unsettled_expenses():
+    expenses = Expense.find_unsettled_expenses()
+    for expense in expenses:
+        payer = User.find_by_id(expense.payer_id)
+        print(f"{expense.id}: {payer.name} made purchase at {expense.store} on {expense.purchase_date} for ${expense.expense_amount}")
 
-
-            
-    
-    
-
-
+def find_expense_by_id(expense_id):
+    expense = Expense.find_by_id(expense_id)
+    print(expense) if expense else print("Expense not found")
+    return expense
 
 
 def exit_program():

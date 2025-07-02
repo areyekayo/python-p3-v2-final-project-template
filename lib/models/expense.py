@@ -19,10 +19,10 @@ class Expense:
         self.is_settled = is_settled
         self.settled_date = settled_date
 
-    def __repr__(self):
-        return (
-            f"Expense: {self.purchase_date}, {self.purchase_category}, {self.store}, {self.expense_amount}, payer: {self.payer_id}, Is settled: {bool(self.is_settled)}, settled date: {self.settled_date}"
-        )
+    # def __repr__(self):
+    #     return (
+    #         f"Expense: {self.purchase_date}, {self.purchase_category}, {self.store}, {self.expense_amount}, payer: {self.payer_id}, Is settled: {bool(self.is_settled)}, settled date: {self.settled_date}"
+    #     )
 
     @property
     def purchase_category(self):

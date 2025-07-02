@@ -11,7 +11,9 @@ from helpers import (
    enter_expense,
    exit_program,
    get_user_owed_payments,
-   make_payment
+   make_payment,
+   list_unsettled_expenses,
+   find_expense_by_id
 )
 
 def main():
@@ -20,6 +22,8 @@ def main():
         choice = input("> ")
         if choice == "1":
             user_menu()
+        elif choice == "2":
+            expense_menu()
         elif choice == "0":
             exit_program()
         else:
@@ -29,6 +33,7 @@ def main():
 def menu():
     print("Please select an option:")
     print("     1. Users")
+    print("     2. Expenses")
     print("     0. Exit")
 
 def user_menu():
@@ -54,8 +59,7 @@ def user_menu():
             return
         
         if user:
-            print(f'Selected {user.name}.')
-            print("Select an option: ")
+            print(f"Select an option for {user.name}: ")
             print("     1. Update User")
             print("     2. Delete User")
             print("     3. Enter an expense")
@@ -85,6 +89,35 @@ def user_menu():
                             make_payment(payment.id)
             elif option == "0":
                 return
+            
+def expense_menu():
+    while True:
+        print("Select an option:")
+        print("     1. Enter new expense")
+        print("     2. List unsettled expenses")
+        print("     0. Back to Main Menu")
+
+        choice = input(">")
+        if choice == "1":
+            expense = enter_expense()
+        elif choice == "2":
+            list_unsettled_expenses()
+            print("Select an expense: ")
+            id = int(input(">"))
+            expense = find_expense_by_id(id)
+        elif choice == "0":
+            menu()
+            return
+
+        if expense:
+            print("Select an option:")
+            print("     1. Update expense")
+            expense_choice = input(">")
+            if expense_choice == "1":
+                pass
+
+
+
                 
 
 if __name__ == "__main__":

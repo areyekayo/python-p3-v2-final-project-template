@@ -10,10 +10,10 @@ class User:
         self.name = name
         self.income = income
 
-    def __repr__(self):
-        return (
-            f"{self.name}, income: {self.income}"
-        )
+    # def __repr__(self):
+    #     return (
+    #         f"{self.name}, income: {self.income}"
+    #     )
     
     @property
     def name(self):
