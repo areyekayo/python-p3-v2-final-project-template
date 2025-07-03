@@ -13,7 +13,8 @@ from helpers import (
    get_user_owed_payments,
    make_payment,
    list_unsettled_expenses,
-   find_expense_by_id
+   find_expense_by_id,
+   update_expense,
 )
 
 def main():
@@ -59,36 +60,40 @@ def user_menu():
             return
         
         if user:
-            print(f"Select an option for {user.name}: ")
-            print("     1. Update User")
-            print("     2. Delete User")
-            print("     3. Enter an expense")
-            print("     4. List user's expenses")
-            print("     5. Make a payment")
-            print("     0. Back")
-            option = input("> ")
-            if option == "1":
-                update_user(user.id)
-            elif option == "2":
-                delete_user(user.id)
-            elif option == "3":
-                enter_expense(user.id)
-            elif option == "4":
-                get_user_expenses(user.id)
-            elif option == "5":
-                while True:
-                    owed_payments = get_user_owed_payments(user.id)
-                    if len(owed_payments) > 0:
-                        print("Enter the payment number to make. Type '0' when finished:")
-                        option = input(">")
-                        if option == "0":
+            while True:
+                print(f"Select an option for {user.name}: ")
+                print("     1. Update User")
+                print("     2. Delete User")
+                print("     3. Enter an expense")
+                print("     4. List user's expenses")
+                print("     5. Make a payment")
+                print("     0. Back")
+                option = input("> ")
+                if option == "1":
+                    update_user(user.id)
+                elif option == "2":
+                    delete_user(user.id)
+                elif option == "3":
+                    enter_expense(user.id)
+                elif option == "4":
+                    get_user_expenses(user.id)
+                elif option == "5":
+                    while True:
+                        owed_payments = get_user_owed_payments(user.id)
+                        if len(owed_payments) > 0:
+                            print("Enter the payment number to make. Type '0' when finished:")
+                            option = input(">")
+                            if option == "0":
+                                return
+                            else:
+                                id = int(option)
+                                payment = next((payment for payment in owed_payments if payment.id == id), None)
+                                make_payment(payment.id)
+                        else: 
+                            print(f"{user.name} has no pending payments.")
                             return
-                        else:
-                            id = int(option)
-                            payment = next((payment for payment in owed_payments if payment.id == id), None)
-                            make_payment(payment.id)
-            elif option == "0":
-                return
+                elif option == "0":
+                    return
             
 def expense_menu():
     while True:
@@ -110,11 +115,15 @@ def expense_menu():
             return
 
         if expense:
-            print("Select an option:")
-            print("     1. Update expense")
-            expense_choice = input(">")
-            if expense_choice == "1":
-                pass
+            while True:
+                print("Select an option:")
+                print("     1. Update expense")
+                print("     0. Back")
+                expense_choice = input(">")
+                if expense_choice == "1":
+                    update_expense(expense)
+                elif expense_choice == "0":
+                    return
 
 
 
