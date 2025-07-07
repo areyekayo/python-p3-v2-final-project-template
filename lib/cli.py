@@ -39,18 +39,27 @@ def menu():
 
 def user_menu():
     while True:
-
+        user = None
         print("Select an option:")
         print("     1. List Users")
         print("     2. Search User Name")
         print("     3. Create user")
         print("     0. Back to Main Menu")
         choice = input("> ")
+
         if choice == "1":
-            list_users()
-            print("Select a user: ")
-            id = int(input(">"))
-            user = find_user_by_id(id)
+            while True:
+                list_users()
+                print("Select a user: ")
+                try: 
+                    id = int(input(">"))
+                    user = find_user_by_id(id)
+                    if user:
+                        break
+                    if not user: 
+                        print(f"Please try again.")
+                except ValueError: 
+                    print("Invalid input. Please try again.")
         elif choice == "2":
             user = find_user_by_name()
         elif choice == "3":
@@ -58,8 +67,14 @@ def user_menu():
         elif choice == "0":
             menu()
             return
+        else: 
+            print("Invalid option, try again.")
+            continue
         
         if user:
+            owed_payments = user.get_owed_payments()
+            print(f"\nSelected {user.name}, income: {user.income}. {user.name} has {len(owed_payments)} owed payments.\n")
+            
             while True:
                 print(f"Select an option for {user.name}: ")
                 print("     1. Update User")
@@ -70,13 +85,13 @@ def user_menu():
                 print("     0. Back")
                 option = input("> ")
                 if option == "1":
-                    update_user(user.id)
+                    update_user(user)
                 elif option == "2":
-                    delete_user(user.id)
+                    delete_user(user)
                 elif option == "3":
-                    enter_expense(user.id)
+                    enter_expense(user)
                 elif option == "4":
-                    get_user_expenses(user.id)
+                    get_user_expenses(user)
                 elif option == "5":
                     while True:
                         owed_payments = get_user_owed_payments(user.id)
@@ -94,6 +109,9 @@ def user_menu():
                             return
                 elif option == "0":
                     return
+                else:
+                    print("Invalid option, try again")
+
             
 def expense_menu():
     while True:

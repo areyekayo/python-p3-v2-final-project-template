@@ -14,6 +14,7 @@ def seed_database():
     sam = User.create("Sam", 100000)
     alex = User.create("Alex", 50000)
     steph = User.create("Steph", 75000)
+    pam = User.create("Pam", 45000)
     expense1 = Expense.create("2025-01-01", "Groceries", "Hannaford", 88.50,
                                sam.id, 0)
     expense2 = Expense.create("2025-01-01", "Home Supplies", "Amazon", 43.76,
@@ -27,6 +28,7 @@ def seed_database():
                               alex.id, 0)
     expense7 = Expense.create("2025-01-05", "Home Supplies", "Adam's", 34.50,
                               steph.id, 0)
+    expense8 = Expense.create("2025-01-03", "Bar", "Roosevelt Bar", 36.45, pam.id, 0)
 
     expense1.calculate_payment([alex.id, steph.id])
     expense2.calculate_payment([alex.id])
@@ -35,5 +37,6 @@ def seed_database():
     expense5.calculate_payment([steph.id])
     expense6.calculate_payment([steph.id, sam.id])
     expense7.calculate_payment([sam.id, alex.id])
+    expense8.calculate_payment([steph.id, alex.id, sam.id])
 
 seed_database()

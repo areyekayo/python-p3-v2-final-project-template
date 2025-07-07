@@ -6,22 +6,16 @@ from models.payment import Payment
 def list_users():
     users = User.get_all()
     for user in users: 
-        print(f'{user.id}: {user.name}, income: ${user.income}')
+        print(f'    {user.id}: {user.name}, income: ${user.income}')
 
 def find_user_by_name():
     name = input("Enter a user's name: ")
     user = User.find_by_name(name)
-    print(f"Found {user.name}, income: {user.income}") if user else print(
-        f'User {name} not found\n'
-    )
-    return user
+    return user if user else print(f'User {name} not found\n')
 
 def find_user_by_id(user_id):
     user = User.find_by_id(user_id)
-    print(f"Found {user.name}, income: {user.income}") if user else print(
-        f"User not found"
-    )
-    return user
+    return user if user else print(f"Invalid user selection.")
 
 def create_user():
     name = input("Enter the new user's name: ")
@@ -43,32 +37,29 @@ def update_user(user):
     except Exception as exc:
         print(f'Error updating user: {exc}\n')
 
-def delete_user(user_id):
-    if user := User.find_by_id(user_id):
-        user.delete()
-        print(f'User {user.name} deleted\n')
-    else: print(f'User not found \n')
+def delete_user(user):
+    print(f'User {user.name} deleted\n')
+    user.delete()
 
+def get_user_expenses(user):
+    expenses = user.expenses()
+    print(f"Listing {user.name}'s expenses: ")
+    for expense in expenses:
+        print(f'    Date: {expense.purchase_date}, Category: {expense.purchase_category}, Store: {expense.store}, Amount: {expense.expense_amount}, Payer: {user.name}, Settled: {bool(expense.is_settled)}, Settled Date: {expense.settled_date}' )
 
-def get_user_expenses(user_id):
-    if user := User.find_by_id(user_id):
-        expenses = user.expenses()
-        print(f"Listing {user.name}'s expenses: ")
-        for expense in expenses:
-            print(f'    Date: {expense.purchase_date}, Category: {expense.purchase_category}, Store: {expense.store}, Amount: {expense.expense_amount}, Payer: {user.name}, Settled: {bool(expense.is_settled)}, Settled Date: {expense.settled_date}' )
-    else: print(f'User not found\n')
+def list_user_details(user):
+    pass
 
-def enter_expense(payer_id=None):
+def enter_expense(payer=None):
     purchase_date = input("Enter the purchase date: ")
     purchase_category = input("Enter the purchase category (Groceries, Restaurant, Home Supplies, Event, Bar): ")
     store = input("Enter the store where purchase was made: ")
     expense_amount = input("Enter the expense amount (ex 12.34): ")
 
-    if payer_id == None:
+    if payer == None:
         name = input("Enter the user name who paid for the expense: ")
-        user = User.find_by_name(name)
-    else:
-        user = User.find_by_id(payer_id)
+        payer = User.find_by_name(name)
+
 
     expense = Expense.create(purchase_date, purchase_category, store, expense_amount, user.id, is_settled=0)
 
