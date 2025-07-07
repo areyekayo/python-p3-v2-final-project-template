@@ -50,14 +50,16 @@ def user_menu():
         if choice == "1":
             while True:
                 list_users()
-                print("Select a user: ")
+                print("Select a user. Enter 0 to go back: ")
                 try: 
                     id = int(input(">"))
                     user = find_user_by_id(id)
                     if user:
                         break
-                    if not user: 
-                        print(f"Please try again.")
+                    elif id == 0:
+                        break
+                    elif not user: 
+                        print(f"Invalid user selection. Please try again.")
                 except ValueError: 
                     print("Invalid input. Please try again.")
         elif choice == "2":
@@ -69,7 +71,6 @@ def user_menu():
             return
         else: 
             print("Invalid option, try again.")
-            continue
         
         if user:
             owed_payments = user.get_owed_payments()
@@ -114,8 +115,6 @@ def user_menu():
                     break
                 else:
                     print("Invalid option, try again")
-                    continue
-
             
 def expense_menu():
     while True:

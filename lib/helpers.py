@@ -15,7 +15,7 @@ def find_user_by_name():
 
 def find_user_by_id(user_id):
     user = User.find_by_id(user_id)
-    return user if user else print(f"Invalid user selection.")
+    return user if user else None
 
 def create_user():
     name = input("Enter the new user's name: ")
