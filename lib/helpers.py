@@ -57,16 +57,26 @@ def enter_expense(payer=None):
     expense_amount = input("Enter the expense amount (ex 12.34): ")
 
     if payer == None:
-        name = input("Enter the user name who paid for the expense: ")
-        payer = User.find_by_name(name)
+        while True:
+            name = input("Enter the user name who paid for the expense: ")
+            try: 
+                payer = User.find_by_name(name)
+                if not payer:
+                    print("User not found, try again")
+                    continue
+                else: 
+                    break
+            except: 
+                Exception("User not found")
+                continue
 
 
-    expense = Expense.create(purchase_date, purchase_category, store, expense_amount, user.id, is_settled=0)
+    expense = Expense.create(purchase_date, purchase_category, store, expense_amount, payer.id, is_settled=0)
 
-    print(f"Successfully created new expense by {user.name}: {expense.purchase_date}, {expense.purchase_category}, {expense.store}, {expense.expense_amount}")
+    print(f"Successfully created new expense by {payer.name}: {expense.purchase_date}, {expense.purchase_category}, {expense.store}, {expense.expense_amount}")
 
     while True:
-        print(f"Enter the names of users who will pay {user.name} back for this expense, separated by commas: ")
+        print(f"Enter the names of users who will pay {payer.name} back for this expense, separated by commas: ")
         ower_input = input("> ")
         try: 
             ower_names = [item.strip() for item in ower_input.split(',')]

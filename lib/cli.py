@@ -73,7 +73,11 @@ def user_menu():
         
         if user:
             owed_payments = user.get_owed_payments()
-            print(f"\nSelected {user.name}, income: {user.income}. {user.name} has {len(owed_payments)} owed payments.\n")
+            print(f"\nSelected {user.name}, income: {user.income}.")
+            if len(owed_payments) == 0:
+                print(f"{user.name} has no owed payments!\n")
+            else: 
+                print(f"{user.name} has {len(owed_payments)} owed payments.\n")
             
             while True:
                 print(f"Select an option for {user.name}: ")
@@ -95,22 +99,22 @@ def user_menu():
                 elif option == "5":
                     while True:
                         owed_payments = get_user_owed_payments(user.id)
-                        if len(owed_payments) > 0:
+                        if not owed_payments:
+                            break
+                        else:
                             print("Enter the payment number to make. Type '0' when finished:")
                             option = input(">")
                             if option == "0":
-                                return
+                                break
                             else:
                                 id = int(option)
                                 payment = next((payment for payment in owed_payments if payment.id == id), None)
                                 make_payment(payment.id)
-                        else: 
-                            print(f"{user.name} has no pending payments.")
-                            return
                 elif option == "0":
-                    return
+                    break
                 else:
                     print("Invalid option, try again")
+                    continue
 
             
 def expense_menu():
@@ -141,7 +145,7 @@ def expense_menu():
                 if expense_choice == "1":
                     update_expense(expense)
                 elif expense_choice == "0":
-                    return
+                    break
 
 
 
