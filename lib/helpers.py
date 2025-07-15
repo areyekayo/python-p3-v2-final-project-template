@@ -70,7 +70,6 @@ def enter_expense(payer=None):
                 Exception("User not found")
                 continue
 
-
     expense = Expense.create(purchase_date, purchase_category, store, expense_amount, payer.id, is_settled=0)
 
     print(f"Successfully created new expense by {payer.name}: {expense.purchase_date}, {expense.purchase_category}, {expense.store}, {expense.expense_amount}")
@@ -117,15 +116,15 @@ def make_payment(payment_id):
 
 def list_unsettled_expenses():
     expenses = Expense.find_unsettled_expenses()
-    for expense in expenses:
+    for i, expense in enumerate(expenses, start=1):
         payer = User.find_by_id(expense.payer_id)
-        print(f"{expense.id}: {payer.name} made purchase at {expense.store} on {expense.purchase_date} for ${expense.expense_amount}")
+        print(f"    {i}: {payer.name} made purchase at {expense.store} on {expense.purchase_date} for ${expense.expense_amount}")
+    return expenses
 
 def find_expense_by_id(expense_id):
     expense = Expense.find_by_id(expense_id)
     print(expense) if expense else print("Expense not found")
     return expense
-
 
 def update_expense(expense):
     try:
@@ -146,9 +145,30 @@ def update_expense(expense):
     except Exception as exc:
         print(f"Error updating expense: {exc}\n")
 
+def get_expense_unsettled_payments(expense):
+    unsettled_payments = expense.unsettled_payments()
+    if unsettled_payments:
+        recipient = User.find_by_id(expense.payer_id)
+        print(f"\nExpense has {len(unsettled_payments)} pending payments.")
+        for i, payment in enumerate(unsettled_payments, start=1):
+            ower = User.find_by_id(payment.ower_id)
+            print(f"    {i}: {ower.name} owes {recipient.name} ${payment.payment_amount} for purchase at {payment.store} on {payment.purchase_date}")
+    else: print(f"Expense has no unsettled payments.")
+    return unsettled_payments if unsettled_payments else None
+
 
 def settle_expense(expense):
-    pass
+    unsettled_payments = expense.unsettled_payments()
+    if len(unsettled_payments) == 0:
+        expense.settle()
+        print("Expense has been paid back, and is now settled!")
+    else:
+        recipient = User.find_by_id(expense.payer_id)
+        print(f"Expense has {len(unsettled_payments)} unsettled payments.")
+        for i, payment in enumerate(unsettled_payments, start=1):
+            ower = User.find_by_id(payment.ower_id)
+            print(f"    {i}: {ower.name} owes {recipient.name} ${payment.payment_amount}")
+
 def exit_program():
     print("Goodbye!")
     exit()

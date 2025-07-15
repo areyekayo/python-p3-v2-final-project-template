@@ -15,6 +15,8 @@ from helpers import (
    list_unsettled_expenses,
    find_expense_by_id,
    update_expense,
+   settle_expense,
+   get_expense_unsettled_payments
 )
 
 def main():
@@ -67,7 +69,6 @@ def user_menu():
         elif choice == "3":
             user = create_user()
         elif choice == "0":
-            menu()
             return
         else: 
             print("Invalid option, try again.")
@@ -127,28 +128,43 @@ def expense_menu():
         if choice == "1":
             expense = enter_expense()
         elif choice == "2":
-            list_unsettled_expenses()
+            print("Listing all unsettled expenses...")
+            expenses = list_unsettled_expenses()
             print("Select an expense: ")
-            id = int(input(">"))
-            expense = find_expense_by_id(id)
+            exp_choice = int(input(">"))
+            expense = expenses[exp_choice - 1]
         elif choice == "0":
-            menu()
             return
 
         if expense:
             while True:
+                payer = find_user_by_id(expense.payer_id)
+                print(f"\nExpense selected: {payer.name}'s purchase at {expense.store} on {expense.purchase_date} for ${expense.expense_amount}")
                 print("Select an option:")
                 print("     1. Update expense")
+                print("     2. Settle expense")
                 print("     0. Back")
                 expense_choice = input(">")
                 if expense_choice == "1":
                     update_expense(expense)
+                elif expense_choice == "2":
+
+                    # move this logic into the settle_expense helper function
+                    while True:
+                        owed_payments = get_expense_unsettled_payments(expense)
+                        if not owed_payments:
+                            break
+                        else:
+                            print("Enter the payment number to make. Enter '0' when finished.")
+                            payment_choice = input(">")
+                            if payment_choice == "0":
+                                break
+                            else:
+                                settle_expense(expense)
+                                
+
                 elif expense_choice == "0":
                     break
-
-
-
-                
 
 if __name__ == "__main__":
     main()
