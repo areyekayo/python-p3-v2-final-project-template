@@ -13,7 +13,6 @@ from helpers import (
    get_user_owed_payments,
    make_payment,
    list_unsettled_expenses,
-   find_expense_by_id,
    update_expense,
    settle_expense,
    get_expense_unsettled_payments
@@ -161,7 +160,7 @@ def expense_menu():
                                 break
                             else:
                                 settle_expense(expense)
-                                
+
 
                 elif expense_choice == "0":
                     break

@@ -27,25 +27,34 @@ def create_user():
         print(f'Error creating the user: {exc}\n')
 
 def update_user(user):
-    try:
-        name = input("Enter the user's new name: ")
-        user.name = name
-        income = input("Enter the user's new income: ")
-        user.income = income
-        print(f"Successfully updated user: {user.name}, income: {user.income}")
-        user.update()
-    except Exception as exc:
-        print(f'Error updating user: {exc}\n')
+    if not isinstance(user, User):
+        raise TypeError(f"Expected user to be an instance of the User class, got {type(user).__name__}")
+    else:
+        try:
+            name = input("Enter the user's new name: ")
+            user.name = name
+            income = input("Enter the user's new income: ")
+            user.income = income
+            print(f"Successfully updated user: {user.name}, income: {user.income}")
+            user.update()
+        except Exception as exc:
+            print(f'Error updating user: {exc}\n')
 
 def delete_user(user):
-    print(f'User {user.name} deleted\n')
-    user.delete()
+    if not isinstance(user, User):
+        raise TypeError(f"Expected user to be an instance of the User class, got {type(user).__name__}")
+    else:
+        print(f'User {user.name} deleted\n')
+        user.delete()
 
 def get_user_expenses(user):
-    expenses = user.expenses()
-    print(f"Listing {user.name}'s expenses: ")
-    for expense in expenses:
-        print(f'    Date: {expense.purchase_date}, Category: {expense.purchase_category}, Store: {expense.store}, Amount: {expense.expense_amount}, Payer: {user.name}, Settled: {bool(expense.is_settled)}, Settled Date: {expense.settled_date}' )
+    if not isinstance(user, User):
+        raise TypeError(f"Expected user to be an instance of the User class, got {type(user).__name__}")
+    else:
+        expenses = user.expenses()
+        print(f"Listing {user.name}'s expenses: ")
+        for expense in expenses:
+            print(f'    Date: {expense.purchase_date}, Category: {expense.purchase_category}, Store: {expense.store}, Amount: {expense.expense_amount}, Payer: {user.name}, Settled: {bool(expense.is_settled)}, Settled Date: {expense.settled_date}' )
 
 def list_user_details(user):
     pass
@@ -121,53 +130,70 @@ def list_unsettled_expenses():
         print(f"    {i}: {payer.name} made purchase at {expense.store} on {expense.purchase_date} for ${expense.expense_amount}")
     return expenses
 
-def find_expense_by_id(expense_id):
-    expense = Expense.find_by_id(expense_id)
-    print(expense) if expense else print("Expense not found")
-    return expense
+# def find_expense_by_id(expense_id):
+#     expense = Expense.find_by_id(expense_id)
+#     print(expense) if expense else print("Expense not found")
+#     return expense
 
 def update_expense(expense):
-    try:
-        purchase_date = input("Enter the expense's purchase date:")
-        purchase_category = input("Enter the purchase category (Groceries, Restaurant, Home Supplies, Event, Bar): ")
-        store = input("Enter the store where the purchase was made: ")
-        expense_amount = input("Enter the expense amount: ")
-        payer_name = input("Enter the name of the person who paid for the expense: ")
-        expense.purchase_date = purchase_date
-        expense.purchase_category = purchase_category
-        expense.store = store
-        expense.expense_amount = expense_amount
-        payer = User.find_by_name(payer_name)
-        expense.payer_id = payer.id
-        expense.update()
-        print(f"""\nSuccessfully updated expense: 
-            Date: {expense.purchase_date}, Category: {expense.purchase_category}, Store: {expense.store}, Amount: {expense.expense_amount}, Payer: {payer.name}, Settled: {bool(expense.is_settled)}, Settled Date: {expense.settled_date}\n""")
-    except Exception as exc:
-        print(f"Error updating expense: {exc}\n")
+    if not isinstance(expense, Expense):
+        raise TypeError(f"Expense should be an instance of Expense Class, got {type(expense).__name__}")
+    else:
+        try:
+            purchase_date = input("Enter the expense's purchase date:")
+            purchase_category = input("Enter the purchase category (Groceries, Restaurant, Home Supplies, Event, Bar): ")
+            store = input("Enter the store where the purchase was made: ")
+            expense_amount = input("Enter the expense amount: ")
+            payer_name = input("Enter the name of the person who paid for the expense: ")
+            expense.purchase_date = purchase_date
+            expense.purchase_category = purchase_category
+            expense.store = store
+            expense.expense_amount = expense_amount
+            payer = User.find_by_name(payer_name)
+            expense.payer_id = payer.id
+            expense.update()
+            print(f"""\nSuccessfully updated expense: 
+                Date: {expense.purchase_date}, Category: {expense.purchase_category}, Store: {expense.store}, Amount: {expense.expense_amount}, Payer: {payer.name}, Settled: {bool(expense.is_settled)}, Settled Date: {expense.settled_date}\n""")
+        except Exception as exc:
+            print(f"Error updating expense: {exc}\n")
 
 def get_expense_unsettled_payments(expense):
-    unsettled_payments = expense.unsettled_payments()
-    if unsettled_payments:
-        recipient = User.find_by_id(expense.payer_id)
-        print(f"\nExpense has {len(unsettled_payments)} pending payments.")
-        for i, payment in enumerate(unsettled_payments, start=1):
-            ower = User.find_by_id(payment.ower_id)
-            print(f"    {i}: {ower.name} owes {recipient.name} ${payment.payment_amount} for purchase at {payment.store} on {payment.purchase_date}")
-    else: print(f"Expense has no unsettled payments.")
-    return unsettled_payments if unsettled_payments else None
+    if not isinstance(expense, Expense):
+        raise TypeError(f"Expense should be an instance of Expense Class, got {type(expense).__name__}")
+    else:
+        unsettled_payments = expense.unsettled_payments()
+        if unsettled_payments:
+            recipient = User.find_by_id(expense.payer_id)
+            print(f"\nExpense has {len(unsettled_payments)} pending payments.")
+            for i, payment in enumerate(unsettled_payments, start=1):
+                ower = User.find_by_id(payment.ower_id)
+                print(f"    {i}: {ower.name} owes {recipient.name} ${payment.payment_amount} for purchase at {expense.store} on {expense.purchase_date}")
+        else: print(f"Expense has no unsettled payments.")
+        return unsettled_payments if unsettled_payments else None
 
 
 def settle_expense(expense):
-    unsettled_payments = expense.unsettled_payments()
-    if len(unsettled_payments) == 0:
-        expense.settle()
-        print("Expense has been paid back, and is now settled!")
+    if not isinstance(expense, Expense):
+        raise TypeError(f"Expense should be an instance of Expense Class, got {type(expense).__name__}")
     else:
-        recipient = User.find_by_id(expense.payer_id)
-        print(f"Expense has {len(unsettled_payments)} unsettled payments.")
-        for i, payment in enumerate(unsettled_payments, start=1):
-            ower = User.find_by_id(payment.ower_id)
-            print(f"    {i}: {ower.name} owes {recipient.name} ${payment.payment_amount}")
+        unsettled_payments = expense.unsettled_payments()
+        if len(unsettled_payments) == 0:
+            expense.settle()
+            print("Expense has been paid back, and is now settled!")
+            return
+        else:
+            recipient = User.find_by_id(expense.payer_id)
+            while True: 
+                print(f"Expense has {len(unsettled_payments)} unsettled payments.")
+                for i, payment in enumerate(unsettled_payments, start=1):
+                    ower = User.find_by_id(payment.ower_id)
+                    print(f"    {i}: {ower.name} owes {recipient.name} ${payment.payment_amount} for purchase at {expense.store} on {expense.purchase_date}")
+                    choice = input("Make this payment now? Enter Y/N")
+                    if choice == "Y":
+                        make_payment(payment.id)
+                    else:
+                        continue
+                
 
 def exit_program():
     print("Goodbye!")
