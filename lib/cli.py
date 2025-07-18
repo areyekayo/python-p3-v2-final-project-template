@@ -26,29 +26,44 @@ def main():
         if choice == "1":
             enter_expense()
         elif choice == "2":
-            while True:
-                print("Users who owe payments:")
-                owers = list_users_with_owed_payments()
-                if not owers:
-                    break
-                print("Enter the user number making a payment. Type '0' when finished:")
-                user_choice = int(input(">"))
-                if user_choice == 0:
-                    break
-                else:
-                    user = owers[user_choice - 1]
-                    while True:
-                        owed_payments = get_user_owed_payments(user.id)
-                        if not owed_payments:
+            while True: # start outer loop to keep the user in this menu to allow making multiple payments by multiple users
+                user = None
+                while True: # start user selection loop
+                    print("Users who owe payments:")
+                    owers = list_users_with_owed_payments()
+                    if not owers:
+                        break
+                    print("Enter the user number making a payment. Type '0' to go back:")
+                    try:
+                        user_choice = int(input(">"))
+                        if user_choice == 0:
                             break
-                        print("Enter the payment number to make. Type '0' when finished:")
-                        option = int(input(">"))
-                        if option == 0:
+                        if 1 <= user_choice <= len(owers):
+                            # break out of user selection loop to make payments for this user
+                            user = owers[user_choice -1]
                             break
                         else:
-                            selected_number= int(option)
-                            payment = owed_payments[selected_number - 1]
+                            print(f"Please enter a number between 1 and {len(owers)}")
+                    except ValueError:
+                        print("Invalid value, please try again.")
+                if user is None:
+                    break
+                while True: # start make payments loop
+                    owed_payments = get_user_owed_payments(user.id)
+                    if not owed_payments:
+                        break
+                    print("Enter the payment number to make. Type '0' when finished:")
+                    try:
+                        payment_num = int(input(">"))
+                        if payment_num == 0:
+                            break
+                        if 1 <= payment_num <= len(owed_payments):
+                            payment = owed_payments[payment_num - 1]
                             make_payment(payment.id)
+                        else: 
+                            print(f"Please enter a number between 1 and {len(owed_payments)}")
+                    except ValueError:
+                        print("Invalid value, please try again")
 
         elif choice == "3":
             user_menu()
@@ -87,10 +102,10 @@ def user_menu():
                 print("Select a user. Enter 0 to go back: ")
                 try: 
                     user_num = int(input(">"))
+                    if user_num == 0:
+                        break
                     user = users[user_num - 1]
                     if user:
-                        break
-                    elif id == 0:
                         break
                     elif not user: 
                         print(f"Invalid user selection. Please try again.")
