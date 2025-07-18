@@ -5,8 +5,9 @@ from models.payment import Payment
 
 def list_users():
     users = User.get_all()
-    for user in users: 
-        print(f'    {user.id}: {user.name}, income: ${user.income}')
+    for i, user in enumerate(users, start=1):
+        print(f'    {i}: {user.name}, income: ${user.income}')
+    return users
 
 def find_user_by_name():
     name = input("Enter a user's name: ")
@@ -81,7 +82,7 @@ def enter_expense(payer=None):
 
     expense = Expense.create(purchase_date, purchase_category, store, expense_amount, payer.id, is_settled=0)
 
-    print(f"Successfully created new expense by {payer.name}: {expense.purchase_date}, {expense.purchase_category}, {expense.store}, {expense.expense_amount}")
+    print(f"Successfully created new expense by {payer.name}: {expense.purchase_date}, {expense.purchase_category} purchase at {expense.store} for ${expense.expense_amount}")
 
     while True:
         print(f"Enter the names of users who will pay {payer.name} back for this expense, separated by commas: ")
@@ -97,7 +98,7 @@ def enter_expense(payer=None):
 def get_user_owed_payments(ower_id=None):
     """Gets payments that are owed by payer_id"""
     if ower_id == None:
-        name = input("Enter the name of the person who owes payments")
+        name = input("Enter the name of the person who owes payments: ")
         ower = User.find_by_name(name)
     else:
         ower = User.find_by_id(ower_id)
@@ -108,14 +109,26 @@ def get_user_owed_payments(ower_id=None):
         return None
     else:
         print(f"{ower.name} has {len(payments)} unpaid payments: ")
-        for payment in payments:
+        for i, payment in enumerate(payments, start=1):
             recipient = User.find_by_id(payment.recipient_id)
             expense = Expense.find_by_id(payment.expense_id)
-            print(f"    {payment.id}: {ower.name} owes {recipient.name} ${payment.payment_amount} for {expense.purchase_category} purchase at {expense.store}")
+            print(f"    {i}: Pay {recipient.name} ${payment.payment_amount} for {expense.purchase_category} purchase at {expense.store} on {expense.purchase_date}")
     
     return payments
 
-def make_payment(payment_id):
+def list_users_with_owed_payments():
+    """Gets users who owe payments, listing their names and number of payments"""
+    users = User.get_all()
+    owers = [user for user in users if len(user.get_owed_payments()) > 0]
+    if not owers:
+        print("No payments are owed!")
+        return None
+    else:
+        for i, ower in enumerate(owers, start=1):
+            print(f"    {i}. {ower.name} owes {len(ower.get_owed_payments())} payments.")
+    return owers
+
+def make_payment(payment_id=None):        
     if payment := Payment.find_by_id(payment_id):
         payment.settle_payment()
         recipient = User.find_by_id(payment.recipient_id)
