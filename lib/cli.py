@@ -16,7 +16,8 @@ from helpers import (
    update_expense,
    settle_expense,
    get_expense_unsettled_payments,
-   list_users_with_owed_payments
+   list_users_with_owed_payments,
+   report
 )
 
 def main():
@@ -77,6 +78,8 @@ def main():
 
 def menu():
     print("\nWelcome to the Fair Bills app!")
+    print("Current status: ")
+    report()
     print("Please select an option: ")
     print("     1. Enter new expense")
     print("     2. Make a payment")

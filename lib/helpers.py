@@ -214,6 +214,22 @@ def settle_expense(expense):
                         make_payment(payment.id)
                     else:
                         continue
+
+def report():
+    """Prints a high level report for the main CLI menu, listing users and their unsettled payments, as well as whether any expenses can be settled (no pending payments)."""
+    # 
+    unsettled_expenses = Expense.find_unsettled_expenses()
+    users = User.get_all()
+    for user in users:
+        owed_payments = user.get_owed_payments()
+        if len(owed_payments) > 0:
+            print(f"    {user.name} owes {len(owed_payments)} payments.")
+
+    fully_paid_expenses = [expense for expense in unsettled_expenses if expense.is_expense_fully_repaid() == True and expense.is_settled == 0]
+    
+    if len(fully_paid_expenses) > 0:
+        print(f"    {len(fully_paid_expenses)} expenses are fully paid back and can be settled.")
+
                 
 
 def exit_program():
