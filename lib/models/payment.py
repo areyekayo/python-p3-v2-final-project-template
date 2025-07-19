@@ -135,6 +135,16 @@ class Payment:
         CONN.commit()
 
     @classmethod
+    def get_unpaid_payments(cls):
+        sql = """
+            SELECT *
+            FROM payments
+            WHERE is_paid = 0
+        """
+        rows = CURSOR.execute(sql).fetchall()
+        return [cls.instance_from_db(row) for row in rows]
+
+    @classmethod
     def find_by_id(cls, id):
         sql = """
             SELECT *

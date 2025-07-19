@@ -163,7 +163,7 @@ class Expense:
         return cls.instance_from_db(row) if row else None
     
     @classmethod
-    def find_unsettled_expenses(cls):
+    def get_unsettled_expenses(cls):
         sql = """
             SELECT *
             FROM expenses

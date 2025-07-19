@@ -37,14 +37,13 @@ def main():
         else:
             print("Invalid choice")
 
-
 def menu():
     print("\nWelcome to the Fair Bills app!")
     print("Current status: ")
     report()
     print("Please select an option: ")
     print("     1. Enter new expense")
-    print("     2. Make a payment")
+    print("     2. Make payments")
     print("     3. Manage Users")
     print("     4. Manage Expenses")
     print("     0. Exit")
@@ -144,7 +143,7 @@ def expense_menu():
         if expense:
             while True:
                 payer = find_user_by_id(expense.payer_id)
-                print(f"\nExpense selected: {payer.name}'s purchase at {expense.store} on {expense.purchase_date} for ${expense.expense_amount}.")
+                print(f"\nExpense selected: {payer.name}'s purchase at {expense.store} on {expense.purchase_date} for ${expense.expense_amount:.2f}.")
                 print("Select an option:")
                 print("     1. Update expense")
                 print("     2. Settle expense")

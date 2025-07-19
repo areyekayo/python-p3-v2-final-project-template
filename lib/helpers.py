@@ -136,45 +136,39 @@ def list_users_with_owed_payments():
             print(f"    {i}. {ower.name} owes {len(ower.get_owed_payments())} payments.")
     return owers
 
+def list_owed_payments():
+    owed_payments = Payment.get_unpaid_payments()
+    if not owed_payments:
+        print("All payments have been made!")
+        return None
+    else:
+        print("All owed payments:")
+        for i, payment in enumerate(owed_payments, start=1):
+            recipient = User.find_by_id(payment.recipient_id)
+            ower = User.find_by_id(payment.ower_id)
+            expense = Expense.find_by_id(payment.expense_id)
+            print(f"    {i}: {ower.name} owes {recipient.name} ${payment.payment_amount:.2f} for purchase at {expense.store} on {expense.purchase_date}")
+        return owed_payments
+
 def make_payments():
-    while True: # start outer loop to keep the user in this menu to allow making multiple payments by multiple users
-        user = None
-        while True: # start user selection loop
-            print("Users who owe payments:")
-            owers = list_users_with_owed_payments()
-            if not owers:
-                break
-            print("Enter the user number making a payment. Type '0' to go back:")
-            try:
-                user_choice = int(input(">"))
-                if user_choice == 0:
-                    break
-                if 1 <= user_choice <= len(owers):
-                    # break out of user selection loop to make payments for this user
-                    user = owers[user_choice -1]
-                    break
-                else:
-                    print(f"Please enter a number between 1 and {len(owers)}")
-            except ValueError:
-                print("Invalid value, please try again.")
-        if user is None:
+    while True:
+        payments = list_owed_payments()
+        if len(payments) == 0:
             break
-        while True: # start make payments loop
-            owed_payments = get_user_owed_payments(user.id)
-            if not owed_payments:
-                break
-            print("Enter the payment number to make. Type '0' when finished:")
+        else:
+            print("Enter a payment number to make, or 0 to go back: ")
             try:
                 payment_num = int(input(">"))
                 if payment_num == 0:
                     break
-                if 1 <= payment_num <= len(owed_payments):
-                    payment = owed_payments[payment_num - 1]
+                if 1 <= payment_num <= len(payments):
+                    payment = payments[payment_num - 1]
                     settle_payment(payment.id)
-                else: 
-                    print(f"Please enter a number between 1 and {len(owed_payments)}")
+                else:
+                    print(f"Please enter a number between 1 and {len(payments)}")
             except ValueError:
-                print("Invalid value, please try again")
+                print("Invalid value, please try again.")
+ 
 
 def settle_payment(payment_id=None):
     """Settles a payment for an expense."""     
@@ -183,11 +177,15 @@ def settle_payment(payment_id=None):
         recipient = User.find_by_id(payment.recipient_id)
         ower = User.find_by_id(payment.ower_id)
         print(f"Success: {ower.name} paid {recipient.name} ${payment.payment_amount:.2f}")
+        expense = Expense.find_by_id(payment.expense_id)
+        if expense.is_expense_fully_repaid() == True:
+            print(f"{recipient.name}'s purchase at {expense.store} is now fully settled!")
+            expense.settle()
     else: print(f"Payment not found")
 
 def list_unsettled_expenses():
     """Lists expenses that have not been paid back in full."""
-    expenses = Expense.find_unsettled_expenses()
+    expenses = Expense.get_unsettled_expenses()
     for i, expense in enumerate(expenses, start=1):
         payer = User.find_by_id(expense.payer_id)
         print(f"    {i}: {payer.name} made purchase at {expense.store} on {expense.purchase_date} for ${expense.expense_amount:.2f}")
@@ -233,32 +231,36 @@ def get_expense_unsettled_payments(expense):
 
 
 def settle_expense(expense):
-    """Settles an expense if all owed payments have been made."""
-    if not isinstance(expense, Expense):
-        raise TypeError(f"Expense should be an instance of Expense Class, got {type(expense).__name__}")
-    else:
-        if expense.is_expense_fully_repaid() == True:
-            expense.settle()
-            print("Expense has been paid back, and is now settled!")
-            return
-        else:
-            unsettled_payments = expense.unsettled_payments()
-            recipient = User.find_by_id(expense.payer_id)
-            while True: 
-                print(f"Expense has {len(unsettled_payments)} unsettled payments.")
-                for i, payment in enumerate(unsettled_payments, start=1):
-                    ower = User.find_by_id(payment.ower_id)
-                    print(f"    {i}: {ower.name} owes {recipient.name} ${payment.payment_amount:.2f} for purchase at {expense.store} on {expense.purchase_date}")
-                    choice = input("Make this payment now? Enter Y/N")
-                    if choice == "Y":
-                        make_payment(payment.id)
-                    else:
-                        continue
+    pass
+    # """Settles an expense if all owed payments have been made."""
+    # if not isinstance(expense, Expense):
+    #     raise TypeError(f"Expense should be an instance of Expense Class, got {type(expense).__name__}")
+    # else:
+    #     if expense.is_expense_fully_repaid() == True:
+    #         expense.settle()
+    #         print("Expense has been paid back, and is now settled!")
+    #         return
+    #     else:
+    #         unsettled_payments = expense.unsettled_payments()
+    #         recipient = User.find_by_id(expense.payer_id)
+    #         print(f"Expense has {len(unsettled_payments)} unsettled payments.")
+    #         for i, payment in enumerate(unsettled_payments, start=1):
+    #             ower = User.find_by_id(payment.ower_id)
+    #             print(f"    {i}: {ower.name} owes {recipient.name} ${payment.payment_amount:.2f} for purchase at {expense.store} on {expense.purchase_date}")
+    #         print("Select a payment to make: ")
+    #         choice = int(input(">"))
+    #         if choice == "Y":
+    #             settle_payment(payment.id)
+    #         else:
+                
+    #         if expense.is_expense_fully_repaid() == True:
+    #             print("Expense is fully paid back!")
+    #             expense.settle()
 
 def report():
     """Prints a high level report for the main CLI menu, listing users and their unsettled payments, as well as whether any expenses can be settled (no pending payments)."""
 
-    unsettled_expenses = Expense.find_unsettled_expenses()
+    unsettled_expenses = Expense.get_unsettled_expenses()
     users = User.get_all()
     for user in users:
         owed_payments = user.get_owed_payments()
