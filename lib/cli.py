@@ -153,7 +153,6 @@ def expense_menu():
                     update_expense(expense)
                 elif expense_choice == "2":
                     settle_expense(expense)
-
                 elif expense_choice == "0":
                     break
 

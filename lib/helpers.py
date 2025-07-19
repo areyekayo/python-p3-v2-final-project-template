@@ -120,7 +120,7 @@ def get_user_owed_payments(ower_id=None):
         for i, payment in enumerate(payments, start=1):
             recipient = User.find_by_id(payment.recipient_id)
             expense = Expense.find_by_id(payment.expense_id)
-            print(f"    {i}: Pay {recipient.name} ${payment.payment_amount:.2f} for {expense.purchase_category} purchase at {expense.store} on {expense.purchase_date}")
+            print(f"    {i}. Pay {recipient.name} ${payment.payment_amount:.2f} for {expense.purchase_category} purchase at {expense.store} on {expense.purchase_date}")
     
     return payments
 
@@ -147,7 +147,7 @@ def list_owed_payments():
             recipient = User.find_by_id(payment.recipient_id)
             ower = User.find_by_id(payment.ower_id)
             expense = Expense.find_by_id(payment.expense_id)
-            print(f"    {i}: {ower.name} owes {recipient.name} ${payment.payment_amount:.2f} for purchase at {expense.store} on {expense.purchase_date}")
+            print(f"    {i}. {ower.name} owes {recipient.name} ${payment.payment_amount:.2f} for purchase at {expense.store} on {expense.purchase_date}")
         return owed_payments
 
 def make_payments():
@@ -188,7 +188,7 @@ def list_unsettled_expenses():
     expenses = Expense.get_unsettled_expenses()
     for i, expense in enumerate(expenses, start=1):
         payer = User.find_by_id(expense.payer_id)
-        print(f"    {i}: {payer.name} made purchase at {expense.store} on {expense.purchase_date} for ${expense.expense_amount:.2f}")
+        print(f"    {i}. {payer.name} made purchase at {expense.store} on {expense.purchase_date} for ${expense.expense_amount:.2f}")
     return expenses
 
 def update_expense(expense):
@@ -225,10 +225,9 @@ def get_expense_unsettled_payments(expense):
             print(f"\nExpense has {len(unsettled_payments)} pending payments.")
             for i, payment in enumerate(unsettled_payments, start=1):
                 ower = User.find_by_id(payment.ower_id)
-                print(f"    {i}: {ower.name} owes {recipient.name} ${payment.payment_amount:.2f} for purchase at {expense.store} on {expense.purchase_date}")
+                print(f"    {i}. {ower.name} owes {recipient.name} ${payment.payment_amount:.2f} for purchase at {expense.store} on {expense.purchase_date}")
         else: print(f"Expense has no unsettled payments.")
         return unsettled_payments if unsettled_payments else None
-
 
 def settle_expense(expense):
     pass

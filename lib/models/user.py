@@ -91,6 +91,7 @@ class User:
 
     @classmethod
     def find_by_name(cls, name):
+        name = name.title().strip()
         sql = """
             SELECT *
             FROM users
