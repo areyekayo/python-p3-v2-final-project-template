@@ -6,8 +6,7 @@ from datetime import datetime, date
 class Expense:
 
     all = {}
-    # Initialize a purchase category dict to store preferences to split bills proportionally or equally
-    purchase_category_type = ["Groceries", "Restaurant", "Home Supplies", "Event", "Bar"]
+    purchase_categories = ["Groceries", "Restaurant", "Home Supplies", "Event", "Bar", "Other"]
 
     def __init__(self, purchase_date, purchase_category, store, expense_amount, payer_id, is_settled=0, settled_date=None, id=None):
         self.id = id
@@ -19,18 +18,13 @@ class Expense:
         self.is_settled = is_settled
         self.settled_date = settled_date
 
-    # def __repr__(self):
-    #     return (
-    #         f"Expense: {self.purchase_date}, {self.purchase_category}, {self.store}, {self.expense_amount}, payer: {self.payer_id}, Is settled: {bool(self.is_settled)}, settled date: {self.settled_date}"
-    #     )
-
     @property
     def purchase_category(self):
         return self._purchase_category
     
     @purchase_category.setter
     def purchase_category(self, purchase_category):
-        if purchase_category not in Expense.purchase_category_type:
+        if purchase_category not in Expense.purchase_categories:
             raise Exception("Purchase category not recognized")
         else:
             self._purchase_category = purchase_category
@@ -216,6 +210,7 @@ class Expense:
         return [Payment.instance_from_db(row) for row in rows]
     
     def owers(self):
+        """Gets the users who owe a portion of the expense."""
         return [ower.id for ower in self.payments()]
     
     def unsettled_payments(self):
@@ -223,6 +218,7 @@ class Expense:
         return [payment for payment in self.payments() if payment.is_paid == 0]
     
     def settled_payments(self):
+        """Gets settled payments related to the expense."""
         return [payment for payment in self.payments() if payment.is_paid == 1]
     
     def is_expense_fully_repaid(self):

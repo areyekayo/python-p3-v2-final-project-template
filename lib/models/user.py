@@ -10,11 +10,6 @@ class User:
         self.name = name
         self.income = income
 
-    # def __repr__(self):
-    #     return (
-    #         f"{self.name}, income: {self.income}"
-    #     )
-    
     @property
     def name(self):
         return self._name 
@@ -147,13 +142,16 @@ class User:
         return [Expense.instance_from_db(row) for row in rows]
     
     def get_unsettled_expenses(self):
+        """Gets unsettled expenses that the user paid for."""
         return [expense for expense in self.expenses() if expense.is_settled == 0]
     
     @classmethod
     def get_users_by_id(cls, user_list):
+        """Returns users with a list of IDs."""
         return {id: User.find_by_id(id) for id in user_list}
     
     def get_owed_payments(self):
+        """Gets the payments that the user owes and hasn't paid back."""
         from models.payment import Payment
         sql = """
             SELECT * FROM payments

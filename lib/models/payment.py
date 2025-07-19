@@ -123,6 +123,7 @@ class Payment:
         return [cls.instance_from_db(row) for row in rows]
     
     def settle_payment(self):
+        """Settles a payment and updates is_paid flag and sets paid_date to today."""
         sql = """
             UPDATE payments
             SET is_paid = ?, paid_date = ?

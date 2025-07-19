@@ -4,21 +4,25 @@ from models.user import User
 from models.payment import Payment
 
 def list_users():
+    """Lists all users and their income."""
     users = User.get_all()
     for i, user in enumerate(users, start=1):
         print(f'    {i}: {user.name}, income: ${user.income}')
     return users
 
 def find_user_by_name():
+    """Gets a user by their name."""
     name = input("Enter a user's name: ")
     user = User.find_by_name(name)
     return user if user else print(f'User {name} not found\n')
 
 def find_user_by_id(user_id):
+    """Gets a user by ID, to be used by other helper functions."""
     user = User.find_by_id(user_id)
     return user if user else None
 
 def create_user():
+    """Creates a new user."""
     name = input("Enter the new user's name: ")
     income = input("Enter the user's yearly income as a whole number: ")
     try:
@@ -28,6 +32,7 @@ def create_user():
         print(f'Error creating the user: {exc}\n')
 
 def update_user(user):
+    """Updates an existing user."""
     if not isinstance(user, User):
         raise TypeError(f"Expected user to be an instance of the User class, got {type(user).__name__}")
     else:
@@ -42,6 +47,7 @@ def update_user(user):
             print(f'Error updating user: {exc}\n')
 
 def delete_user(user):
+    """Deletes a user."""
     if not isinstance(user, User):
         raise TypeError(f"Expected user to be an instance of the User class, got {type(user).__name__}")
     else:
@@ -49,6 +55,7 @@ def delete_user(user):
         user.delete()
 
 def get_user_expenses(user):
+    """Gets a user's expenses."""
     if not isinstance(user, User):
         raise TypeError(f"Expected user to be an instance of the User class, got {type(user).__name__}")
     else:
@@ -61,6 +68,7 @@ def list_user_details(user):
     pass
 
 def enter_expense(payer=None):
+    """Creates a new expense, including payments for users who owe the payer."""
     purchase_date = input("Enter the purchase date: ")
     purchase_category = input("Enter the purchase category (Groceries, Restaurant, Home Supplies, Event, Bar): ")
     store = input("Enter the store where purchase was made: ")
@@ -128,7 +136,8 @@ def list_users_with_owed_payments():
             print(f"    {i}. {ower.name} owes {len(ower.get_owed_payments())} payments.")
     return owers
 
-def make_payment(payment_id=None):        
+def make_payment(payment_id=None):
+    """Settles a payment for an expense."""     
     if payment := Payment.find_by_id(payment_id):
         payment.settle_payment()
         recipient = User.find_by_id(payment.recipient_id)
@@ -137,18 +146,15 @@ def make_payment(payment_id=None):
     else: print(f"Payment not found")
 
 def list_unsettled_expenses():
+    """Lists expenses that have not been paid back in full."""
     expenses = Expense.find_unsettled_expenses()
     for i, expense in enumerate(expenses, start=1):
         payer = User.find_by_id(expense.payer_id)
         print(f"    {i}: {payer.name} made purchase at {expense.store} on {expense.purchase_date} for ${expense.expense_amount}")
     return expenses
 
-# def find_expense_by_id(expense_id):
-#     expense = Expense.find_by_id(expense_id)
-#     print(expense) if expense else print("Expense not found")
-#     return expense
-
 def update_expense(expense):
+    """Updates an expense. Note: need to also update payments, if the purchase amount changes."""
     if not isinstance(expense, Expense):
         raise TypeError(f"Expense should be an instance of Expense Class, got {type(expense).__name__}")
     else:
@@ -171,6 +177,7 @@ def update_expense(expense):
             print(f"Error updating expense: {exc}\n")
 
 def get_expense_unsettled_payments(expense):
+    """Gets an expense's unsettled payments."""
     if not isinstance(expense, Expense):
         raise TypeError(f"Expense should be an instance of Expense Class, got {type(expense).__name__}")
     else:
@@ -186,6 +193,7 @@ def get_expense_unsettled_payments(expense):
 
 
 def settle_expense(expense):
+    """Settles an expense if all owed payments have been made."""
     if not isinstance(expense, Expense):
         raise TypeError(f"Expense should be an instance of Expense Class, got {type(expense).__name__}")
     else:
