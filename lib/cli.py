@@ -101,17 +101,20 @@ def user_menu():
 
         if choice == "1":
             while True:
+                user = None
+                print("Users:")
                 users = list_users()
                 print("Select a user. Enter 0 to go back: ")
                 try: 
                     user_num = int(input(">"))
                     if user_num == 0:
                         break
-                    user = users[user_num - 1]
+                    if 1 <= user_num <= len(users):
+                        user = users[user_num - 1]
                     if user:
                         break
-                    elif not user: 
-                        print(f"Invalid user selection. Please try again.")
+                    else: 
+                        print(f"Please enter a number between 1 and {len(users)}")
                 except ValueError: 
                     print("Invalid input. Please try again.")
         elif choice == "2":
@@ -145,7 +148,7 @@ def user_menu():
             
 def expense_menu():
     while True:
-        print("EXPENSE MENU")
+        print("\nEXPENSE MENU")
         print("-------------------")
         print("Select an option:")
         print("     1. Enter new expense")
@@ -156,18 +159,30 @@ def expense_menu():
         if choice == "1":
             expense = enter_expense()
         elif choice == "2":
-            print("Listing all unsettled expenses...")
-            expenses = list_unsettled_expenses()
-            print("Select an expense: ")
-            exp_choice = int(input(">"))
-            expense = expenses[exp_choice - 1]
+            while True:
+                expense = None
+                expenses = list_unsettled_expenses()
+                print("Select an expense. Enter 0 to go back: ")
+                try:
+                    exp_choice = int(input(">"))
+                    if exp_choice == 0:
+                        break
+                    if 1 <= exp_choice <= len(expenses):
+                        expense = expenses[exp_choice - 1]
+                    if expense:
+                        break
+                    else:
+                        print(f"Please enter a number between 1 and {len(expenses)}")
+                except ValueError:
+                    print(f"Invalid input, please try again.")
+                
         elif choice == "0":
             return
 
         if expense:
             while True:
                 payer = find_user_by_id(expense.payer_id)
-                print(f"\nExpense selected: {payer.name}'s purchase at {expense.store} on {expense.purchase_date} for ${expense.expense_amount}")
+                print(f"\nExpense selected: {payer.name}'s purchase at {expense.store} on {expense.purchase_date} for ${expense.expense_amount}.")
                 print("Select an option:")
                 print("     1. Update expense")
                 print("     2. Settle expense")
@@ -176,20 +191,7 @@ def expense_menu():
                 if expense_choice == "1":
                     update_expense(expense)
                 elif expense_choice == "2":
-
-                    # move this logic into the settle_expense helper function
-                    while True:
-                        owed_payments = get_expense_unsettled_payments(expense)
-                        if not owed_payments:
-                            break
-                        else:
-                            print("Enter the payment number to make. Enter '0' when finished.")
-                            payment_choice = input(">")
-                            if payment_choice == "0":
-                                break
-                            else:
-                                settle_expense(expense)
-
+                    settle_expense(expense)
 
                 elif expense_choice == "0":
                     break

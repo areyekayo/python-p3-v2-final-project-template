@@ -36,7 +36,7 @@ class Expense:
     @expense_amount.setter
     def expense_amount(self, expense_amount):
         try: 
-            expense_amount = float(expense_amount)
+            expense_amount = round(float(expense_amount), 2)
             self._expense_amount = expense_amount
         except: raise ValueError("Expense amount must be a dollar and cent amount: 12.34")
     
